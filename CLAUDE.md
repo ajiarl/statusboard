@@ -2,6 +2,14 @@
 
 This file provides guidance to Claude Code (claude.ai/code) when working with code in this repository.
 
+## UI/UX Skill Rules
+Whenever touching any UI/UX code, always load and apply these skills:
+- ~/.claude/skills/impeccable/SKILL.md
+- ~/.claude/skills/design-taste-frontend/SKILL.md
+- ~/.claude/skills/ui-ux-pro-max/SKILL.md
+
+No exceptions. Every component, every page, every style change.
+
 ## Project Overview
 
 **StatusBoard** is an open-source, self-hostable status page for monitoring the uptime of multiple projects in a single public dashboard. Built to mirror the Snip project's stack (Next.js 16 + Drizzle ORM + Supabase Postgres + Tailwind v4 + shadcn/ui + Vercel) for pattern reuse.

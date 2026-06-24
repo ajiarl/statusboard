@@ -1,0 +1,328 @@
+<!DOCTYPE html>
+
+<html class="dark" lang="id"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&amp;family=JetBrains+Mono:wght@500&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<script id="tailwind-config">
+        tailwind.config = {
+            darkMode: "class",
+            theme: {
+                extend: {
+                    "colors": {
+                        "background": "#0F0F0F",
+                        "tertiary-container": "#d87820",
+                        "secondary-fixed-dim": "#c6c5d6",
+                        "primary": "#606AF0",
+                        "on-tertiary": "#4e2500",
+                        "surface-container": "#171824",
+                        "surface-tint": "#606AF0",
+                        "outline-variant": "#24292E",
+                        "error": "#E11D48",
+                        "surface-container-highest": "#353534",
+                        "status-warning": "#FFBF00",
+                        "text-muted": "#6A737D",
+                        "inverse-primary": "#444dd3",
+                        "on-secondary-fixed-variant": "#454653",
+                        "outline": "#908fa0",
+                        "surface-container-high": "#2a2a2a",
+                        "surface-container-low": "#1c1b1b",
+                        "surface-bright": "#3a3939",
+                        "on-secondary": "#2f2f3c",
+                        "inverse-on-surface": "#313030",
+                        "status-success": "#28A745",
+                        "on-primary-container": "#000396",
+                        "on-primary-fixed-variant": "#2831bb",
+                        "inverse-surface": "#e5e2e1",
+                        "primary-container": "#606AF0",
+                        "on-tertiary-fixed-variant": "#703800",
+                        "tertiary-fixed": "#ffdcc5",
+                        "on-surface-variant": "#c6c5d7",
+                        "tertiary-fixed-dim": "#ffb781",
+                        "on-error": "#690005",
+                        "secondary": "#171824",
+                        "on-background": "#e5e2e1",
+                        "on-tertiary-fixed": "#301400",
+                        "on-primary": "#ffffff",
+                        "on-primary-fixed": "#00026c",
+                        "error-container": "#93000a",
+                        "surface-dim": "#0F0F0F",
+                        "surface-variant": "#353534",
+                        "on-error-container": "#ffdad6",
+                        "status-danger": "#E11D48",
+                        "primary-fixed-dim": "#bec2ff",
+                        "tertiary": "#ffb781",
+                        "surface": "#0F0F0F",
+                        "secondary-fixed": "#e2e1f2",
+                        "secondary-container": "#474856",
+                        "on-surface": "#e5e2e1",
+                        "on-secondary-container": "#b8b7c7",
+                        "surface-container-lowest": "#0e0e0e",
+                        "on-tertiary-container": "#452000",
+                        "border-subtle": "#24292E",
+                        "primary-fixed": "#e0e0ff",
+                        "on-secondary-fixed": "#1a1b27"
+                    },
+                    "borderRadius": {
+                        "DEFAULT": "0.125rem",
+                        "lg": "0.25rem",
+                        "xl": "0.5rem",
+                        "full": "0.75rem"
+                    },
+                    "spacing": {
+                        "stack-sm": "0.5rem",
+                        "stack-lg": "2rem",
+                        "container-max": "1200px",
+                        "stack-md": "1rem",
+                        "margin-mobile": "1rem",
+                        "gutter": "1.5rem"
+                    },
+                    "fontFamily": {
+                        "data-mono": ["JetBrains Mono"],
+                        "headline-lg": ["Inter"],
+                        "body-md": ["Inter"],
+                        "label-caps": ["Inter"],
+                        "headline-md": ["Inter"],
+                        "body-sm": ["Inter"]
+                    },
+                    "fontSize": {
+                        "data-mono": ["14px", {"lineHeight": "20px", "fontWeight": "500"}],
+                        "headline-lg": ["32px", {"lineHeight": "40px", "letterSpacing": "-0.02em", "fontWeight": "700"}],
+                        "body-md": ["16px", {"lineHeight": "24px", "fontWeight": "400"}],
+                        "label-caps": ["12px", {"lineHeight": "16px", "letterSpacing": "0.05em", "fontWeight": "600"}],
+                        "body-sm": ["14px", {"lineHeight": "20px", "fontWeight": "400"}],
+                        "headline-md": ["24px", {"lineHeight": "32px", "letterSpacing": "-0.01em", "fontWeight": "600"}]
+                    }
+                },
+            },
+        }
+    </script>
+<style>
+        body {
+            background-color: #0F0F0F;
+            color: #e5e2e1;
+            font-family: 'Inter', sans-serif;
+        }
+        .material-symbols-outlined {
+            font-variation-settings: 'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 24;
+        }
+        .custom-scrollbar::-webkit-scrollbar {
+            width: 4px;
+        }
+        .custom-scrollbar::-webkit-scrollbar-track {
+            background: #0F0F0F;
+        }
+        .custom-scrollbar::-webkit-scrollbar-thumb {
+            background: #24292E;
+            border-radius: 10px;
+        }
+    </style>
+</head>
+<body class="antialiased">
+<!-- Sidebar Wrapper -->
+<aside class="h-screen w-64 fixed left-0 top-0 flex flex-col p-stack-md gap-stack-sm bg-background dark:bg-background border-r border-border-subtle z-50">
+<!-- Brand Header -->
+<div class="px-2 mb-8">
+<h1 class="font-headline-md text-headline-md text-primary font-bold">StatusBoard</h1>
+<p class="text-[10px] tracking-[0.2em] font-bold text-text-muted mt-1 uppercase">ADMIN PANEL</p>
+</div>
+<!-- Navigation Links -->
+<nav class="flex-1 space-y-2">
+<!-- Monitor (Inactive) -->
+<a class="flex items-center gap-3 px-4 py-3 text-on-surface-variant font-medium hover:bg-surface-container-low transition-colors rounded-lg cursor-pointer active:scale-95 group" href="#">
+<span class="material-symbols-outlined text-on-surface-variant group-hover:text-primary transition-colors">monitoring</span>
+<span class="font-body-md text-body-md">Monitor</span>
+</a>
+<!-- Insiden (Active) -->
+<a class="flex items-center gap-3 px-4 py-3 text-primary font-bold bg-surface-container-high rounded-lg cursor-pointer active:scale-95" href="#">
+<span class="material-symbols-outlined" style="font-variation-settings: 'FILL' 1;">error</span>
+<span class="font-body-md text-body-md">Insiden</span>
+</a>
+</nav>
+<!-- Logout -->
+<div class="mt-auto border-t border-border-subtle pt-4">
+<a class="flex items-center gap-3 px-4 py-3 text-on-surface-variant font-medium hover:text-status-danger hover:bg-status-danger/5 transition-all rounded-lg cursor-pointer active:scale-95 group" href="#">
+<span class="material-symbols-outlined group-hover:text-status-danger">logout</span>
+<span class="font-body-md text-body-md">Keluar</span>
+</a>
+</div>
+</aside>
+<!-- Top Navigation Bar -->
+<header class="fixed top-0 right-0 w-[calc(100%-16rem)] bg-surface-dim dark:bg-surface-dim border-b border-border-subtle z-40">
+<div class="flex justify-between items-center h-16 px-gutter">
+<h2 class="font-headline-md text-headline-md text-on-surface">Insiden</h2>
+<div class="flex items-center gap-6">
+<!-- Icon Actions -->
+<div class="flex items-center gap-2">
+<button class="p-2 text-on-surface-variant hover:text-primary transition-opacity relative group">
+<span class="material-symbols-outlined">notifications</span>
+<span class="absolute top-2 right-2 w-2 h-2 bg-status-danger rounded-full border-2 border-surface-dim"></span>
+</button>
+<button class="p-2 text-on-surface-variant hover:text-primary transition-opacity">
+<span class="material-symbols-outlined">settings</span>
+</button>
+</div>
+<!-- Primary Action -->
+<button class="bg-[#606AF0] hover:bg-[#5059d0] text-white px-5 py-2 rounded-lg font-medium text-body-sm transition-all active:scale-95 flex items-center gap-2">
+<span class="material-symbols-outlined text-[18px]">add</span>
+                    + Buat Insiden
+                </button>
+</div>
+</div>
+</header>
+<!-- Main Content Canvas -->
+<main class="ml-64 pt-16 min-h-screen">
+<div class="p-gutter max-w-container-max mx-auto">
+<!-- Table Container -->
+<div class="bg-surface-container border border-border-subtle rounded-xl overflow-hidden">
+<div class="overflow-x-auto custom-scrollbar">
+<table class="w-full text-left border-collapse">
+<thead>
+<tr class="bg-surface-container-low border-b border-border-subtle">
+<th class="px-6 py-4 font-label-caps text-label-caps text-text-muted">JUDUL INSIDEN</th>
+<th class="px-6 py-4 font-label-caps text-label-caps text-text-muted">SEVERITAS</th>
+<th class="px-6 py-4 font-label-caps text-label-caps text-text-muted">STATUS</th>
+<th class="px-6 py-4 font-label-caps text-label-caps text-text-muted">TANGGAL DIBUAT</th>
+<th class="px-6 py-4 font-label-caps text-label-caps text-text-muted text-right">AKSI</th>
+</tr>
+</thead>
+<tbody class="divide-y divide-border-subtle">
+<!-- Row 1 -->
+<tr class="hover:bg-white/[0.02] transition-colors group">
+<td class="px-6 py-5 font-body-md text-body-md text-on-surface">Masalah Konektivitas Database</td>
+<td class="px-6 py-5">
+<span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-semibold bg-status-danger/10 text-status-danger border border-status-danger/20">
+                                        Kritis
+                                    </span>
+</td>
+<td class="px-6 py-5">
+<span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-semibold bg-status-success/10 text-status-success border border-status-success/20">
+                                        Terselesaikan
+                                    </span>
+</td>
+<td class="px-6 py-5 font-data-mono text-data-mono text-on-surface-variant">2024-10-12 09:15</td>
+<td class="px-6 py-5 text-right">
+<div class="flex justify-end gap-3 opacity-0 group-hover:opacity-100 transition-opacity"><button class="text-on-surface-variant hover:text-primary transition-colors"><span class="material-symbols-outlined text-[20px]">edit</span></button><button class="text-on-surface-variant hover:text-status-danger transition-colors"><span class="material-symbols-outlined text-[20px]">delete</span></button></div>
+</td>
+</tr>
+<!-- Row 2 -->
+<tr class="hover:bg-white/[0.02] transition-colors group">
+<td class="px-6 py-5 font-body-md text-body-md text-on-surface">Pemeliharaan Infrastruktur Rutin</td>
+<td class="px-6 py-5">
+<span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-semibold bg-status-warning/10 text-status-warning border border-status-warning/20">
+                                        Minor
+                                    </span>
+</td>
+<td class="px-6 py-5">
+<span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-semibold bg-status-danger/10 text-status-danger border border-status-danger/20">
+                                        Aktif
+                                    </span>
+</td>
+<td class="px-6 py-5 font-data-mono text-data-mono text-on-surface-variant">2024-10-14 22:00</td>
+<td class="px-6 py-5 text-right">
+<div class="flex justify-end gap-3 opacity-0 group-hover:opacity-100 transition-opacity"><button class="text-on-surface-variant hover:text-primary transition-colors"><span class="material-symbols-outlined text-[20px]">edit</span></button><button class="text-on-surface-variant hover:text-status-danger transition-colors"><span class="material-symbols-outlined text-[20px]">delete</span></button></div>
+</td>
+</tr>
+<!-- Row 3 -->
+<tr class="hover:bg-white/[0.02] transition-colors group">
+<td class="px-6 py-5 font-body-md text-body-md text-on-surface">Latensi Tinggi pada API Utama</td>
+<td class="px-6 py-5">
+<span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-semibold bg-orange-500/10 text-orange-500 border border-orange-500/20">
+                                        Mayor
+                                    </span>
+</td>
+<td class="px-6 py-5">
+<span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-semibold bg-status-warning/10 text-status-warning border border-status-warning/20">
+                                        Diselidiki
+                                    </span>
+</td>
+<td class="px-6 py-5 font-data-mono text-data-mono text-on-surface-variant">2024-10-15 11:45</td>
+<td class="px-6 py-5 text-right">
+<div class="flex justify-end gap-3 opacity-0 group-hover:opacity-100 transition-opacity"><button class="text-on-surface-variant hover:text-primary transition-colors"><span class="material-symbols-outlined text-[20px]">edit</span></button><button class="text-on-surface-variant hover:text-status-danger transition-colors"><span class="material-symbols-outlined text-[20px]">delete</span></button></div>
+</td>
+</tr>
+<!-- Row 4 (Mocked for data density) -->
+<tr class="hover:bg-white/[0.02] transition-colors group">
+<td class="px-6 py-5 font-body-md text-body-md text-on-surface">Masalah Sertifikat SSL Expired</td>
+<td class="px-6 py-5">
+<span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-semibold bg-status-danger/10 text-status-danger border border-status-danger/20">
+                                        Kritis
+                                    </span>
+</td>
+<td class="px-6 py-5">
+<span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-semibold bg-status-danger/10 text-status-danger border border-status-danger/20">
+                                        Aktif
+                                    </span>
+</td>
+<td class="px-6 py-5 font-data-mono text-data-mono text-on-surface-variant">2024-10-16 08:30</td>
+<td class="px-6 py-5 text-right">
+<div class="flex justify-end gap-3 opacity-0 group-hover:opacity-100 transition-opacity"><button class="text-on-surface-variant hover:text-primary transition-colors"><span class="material-symbols-outlined text-[20px]">edit</span></button><button class="text-on-surface-variant hover:text-status-danger transition-colors"><span class="material-symbols-outlined text-[20px]">delete</span></button></div>
+</td>
+</tr>
+</tbody>
+</table>
+</div>
+<!-- Table Footer / Pagination -->
+<div class="px-6 py-4 bg-surface-container-low border-t border-border-subtle flex items-center justify-between">
+<p class="font-body-sm text-body-sm text-text-muted">Menampilkan 4 dari 28 insiden</p>
+<div class="flex items-center gap-2">
+<button class="p-1 text-on-surface-variant hover:bg-surface-container-high rounded disabled:opacity-30" disabled="">
+<span class="material-symbols-outlined">chevron_left</span>
+</button>
+<span class="font-data-mono text-data-mono px-3 py-1 bg-primary/20 text-primary rounded border border-primary/30">1</span>
+<button class="p-1 text-on-surface-variant hover:bg-surface-container-high rounded">
+<span class="material-symbols-outlined">chevron_right</span>
+</button>
+</div>
+</div>
+</div>
+<!-- Stats Overview (Bento Grid Style Extra) -->
+<div class="mt-stack-lg grid grid-cols-1 md:grid-cols-3 gap-stack-md">
+<div class="bg-surface-container border border-border-subtle p-6 rounded-xl flex items-center gap-4">
+<div class="w-12 h-12 bg-status-danger/10 rounded-lg flex items-center justify-center">
+<span class="material-symbols-outlined text-status-danger">report</span>
+</div>
+<div>
+<p class="font-label-caps text-label-caps text-text-muted mb-1">INSIDEN AKTIF</p>
+<h3 class="font-headline-md text-headline-md font-bold text-on-surface">2</h3>
+</div>
+</div>
+<div class="bg-surface-container border border-border-subtle p-6 rounded-xl flex items-center gap-4">
+<div class="w-12 h-12 bg-status-warning/10 rounded-lg flex items-center justify-center">
+<span class="material-symbols-outlined text-status-warning">search</span>
+</div>
+<div>
+<p class="font-label-caps text-label-caps text-text-muted mb-1">DISELIDIKI</p>
+<h3 class="font-headline-md text-headline-md font-bold text-on-surface">1</h3>
+</div>
+</div>
+<div class="bg-surface-container border border-border-subtle p-6 rounded-xl flex items-center gap-4">
+<div class="w-12 h-12 bg-status-success/10 rounded-lg flex items-center justify-center">
+<span class="material-symbols-outlined text-status-success">check_circle</span>
+</div>
+<div>
+<p class="font-label-caps text-label-caps text-text-muted mb-1">RATA-RATA RESOLUSI</p>
+<h3 class="font-headline-md text-headline-md font-bold text-on-surface">1j 45m</h3>
+</div>
+</div>
+</div>
+</div>
+</main>
+<script>
+        // Micro-interaction for row clicks or buttons
+        document.querySelectorAll('button').forEach(btn => {
+            btn.addEventListener('mousedown', () => {
+                btn.style.transform = 'scale(0.96)';
+            });
+            btn.addEventListener('mouseup', () => {
+                btn.style.transform = 'scale(1)';
+            });
+            btn.addEventListener('mouseleave', () => {
+                btn.style.transform = 'scale(1)';
+            });
+        });
+    </script>
+</body></html>

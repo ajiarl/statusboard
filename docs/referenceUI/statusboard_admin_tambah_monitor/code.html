@@ -1,0 +1,224 @@
+<!DOCTYPE html><html class="dark" lang="id" style=""><head>
+<meta charset="utf-8">
+<meta content="width=device-width, initial-scale=1.0" name="viewport">
+<title>Tambah Monitor Baru - StatusBoard</title>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&amp;family=JetBrains+Mono:wght@400;500&amp;display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet">
+<script id="tailwind-config">
+        tailwind.config = {
+            darkMode: "class",
+            theme: {
+                extend: {
+                    "colors": {
+                        "background": "#131313",
+                        "secondary": "#c6c5d6",
+                        "on-background": "#e5e2e1",
+                        "secondary-fixed-dim": "#c6c5d6",
+                        "tertiary-fixed": "#ffdcc5",
+                        "surface-tint": "#bec2ff",
+                        "inverse-primary": "#444dd3",
+                        "on-primary": "#0308a7",
+                        "surface-container": "#201f1f",
+                        "secondary-fixed": "#e2e1f2",
+                        "on-tertiary-container": "#452000",
+                        "on-secondary-container": "#b8b7c7",
+                        "border-subtle": "#24292E",
+                        "surface-container-highest": "#353534",
+                        "secondary-container": "#474856",
+                        "on-secondary": "#2f2f3c",
+                        "status-danger": "#E11D48",
+                        "status-success": "#28A745",
+                        "primary-container": "#7b85ff",
+                        "primary": "#bec2ff",
+                        "on-secondary-fixed": "#1a1b27",
+                        "tertiary-fixed-dim": "#ffb781",
+                        "on-tertiary-fixed-variant": "#703800",
+                        "inverse-surface": "#e5e2e1",
+                        "on-primary-fixed-variant": "#2831bb",
+                        "surface-variant": "#353534",
+                        "on-surface-variant": "#c6c5d7",
+                        "on-primary-fixed": "#00026c",
+                        "surface-bright": "#3a3939",
+                        "primary-fixed-dim": "#bec2ff",
+                        "error-container": "#93000a",
+                        "on-error": "#690005",
+                        "inverse-on-surface": "#313030",
+                        "on-secondary-fixed-variant": "#454653",
+                        "on-primary-container": "#000396",
+                        "tertiary": "#ffb781",
+                        "outline": "#908fa0",
+                        "surface-container-low": "#1c1b1b",
+                        "tertiary-container": "#d87820",
+                        "text-muted": "#6A737D",
+                        "on-tertiary": "#4e2500",
+                        "primary-fixed": "#e0e0ff",
+                        "on-error-container": "#ffdad6",
+                        "surface-container-high": "#2a2a2a",
+                        "surface-dim": "#131313",
+                        "on-surface": "#e5e2e1",
+                        "status-warning": "#FFBF00",
+                        "error": "#ffb4ab",
+                        "outline-variant": "#454654",
+                        "surface-container-lowest": "#0e0e0e",
+                        "surface": "#131313",
+                        "on-tertiary-fixed": "#301400"
+                    },
+                    "borderRadius": {
+                        "DEFAULT": "0.125rem",
+                        "lg": "0.25rem",
+                        "xl": "0.5rem",
+                        "full": "0.75rem"
+                    },
+                    "spacing": {
+                        "gutter": "1.5rem",
+                        "stack-sm": "0.5rem",
+                        "stack-lg": "2rem",
+                        "container-max": "1200px",
+                        "margin-mobile": "1rem",
+                        "stack-md": "1rem"
+                    },
+                    "fontFamily": {
+                        "headline-lg-mobile": ["Inter"],
+                        "data-mono": ["JetBrains Mono"],
+                        "label-caps": ["Inter"],
+                        "headline-md": ["Inter"],
+                        "headline-lg": ["Inter"],
+                        "body-sm": ["Inter"],
+                        "body-md": ["Inter"]
+                    },
+                    "fontSize": {
+                        "headline-lg-mobile": ["24px", { "lineHeight": "32px", "fontWeight": "700" }],
+                        "data-mono": ["14px", { "lineHeight": "20px", "fontWeight": "500" }],
+                        "label-caps": ["12px", { "lineHeight": "16px", "letterSpacing": "0.05em", "fontWeight": "600" }],
+                        "headline-md": ["24px", { "lineHeight": "32px", "letterSpacing": "-0.01em", "fontWeight": "600" }],
+                        "headline-lg": ["32px", { "lineHeight": "40px", "letterSpacing": "-0.02em", "fontWeight": "700" }],
+                        "body-sm": ["14px", { "lineHeight": "20px", "fontWeight": "400" }],
+                        "body-md": ["16px", { "lineHeight": "24px", "fontWeight": "400" }]
+                    }
+                }
+            }
+        }
+    </script>
+<style>
+        body { background-color: #0F0F0F; color: #e5e2e1; }
+        .card-surface { background-color: #171824; border: 1px solid #24292E; }
+        .btn-primary { background-color: #606AF0; color: white; border-radius: 4px; }
+        .btn-ghost { background-color: transparent; border: 1px solid #24292E; color: white; border-radius: 4px; }
+        .input-field { background-color: #0F0F0F; border: 1px solid #24292E; color: #e5e2e1; }
+        .input-field:focus { border-color: #606AF0; outline: none; box-shadow: none; }
+        
+        /* Toggle Switch Styles */
+        .toggle-checkbox:checked { right: 0; border-color: #606AF0; }
+        .toggle-checkbox:checked + .toggle-label { background-color: #606AF0; }
+        .toggle-checkbox:checked + .toggle-label:after { transform: translateX(100%); border-color: white; }
+        .toggle-label { width: 44px; height: 24px; background-color: #24292E; border-radius: 9999px; position: relative; cursor: pointer; transition: background-color 0.2s ease-in-out; }
+        .toggle-label:after { content: ''; position: absolute; top: 2px; left: 2px; width: 20px; height: 20px; background-color: white; border-radius: 50%; transition: transform 0.2s ease-in-out; }
+    </style>
+</head>
+<body class="font-body-md text-body-md antialiased min-h-screen flex">
+<!-- SideNavBar -->
+<aside class="bg-surface-container dark:bg-surface-container docked h-screen w-64 left-0 top-0 border-r border-outline-variant flat no shadows flex flex-col h-full py-stack-lg hidden md:flex shrink-0">
+<div class="px-6 mb-8">
+<h1 class="text-headline-md font-headline-md font-bold text-primary dark:text-primary">StatusBoard</h1>
+<p class="text-text-muted font-label-caps text-label-caps mt-1">ADMIN PANEL</p>
+</div>
+<nav class="flex-1 flex flex-col gap-2 px-4 font-body-md text-body-md font-label-caps text-label-caps">
+<a class="flex items-center gap-3 px-4 py-3 rounded-DEFAULT text-primary font-bold border-l-4 border-primary bg-secondary-container/20 hover:bg-surface-variant transition-colors Active: opacity-80" href="#">
+<span class="material-symbols-outlined">monitor_heart</span>
+                Monitor
+            </a>
+<a class="flex items-center gap-3 px-4 py-3 rounded-DEFAULT text-on-surface-variant hover:bg-surface-variant transition-colors" href="#">
+<span class="material-symbols-outlined">error</span>
+                Insiden
+            </a>
+</nav>
+<div class="px-4 mt-auto">
+
+<a class="mt-4 flex items-center gap-3 px-4 py-3 rounded-DEFAULT text-on-surface-variant hover:bg-surface-variant transition-colors font-body-md text-body-md font-label-caps text-label-caps" href="#">
+<span class="material-symbols-outlined">logout</span>
+                Keluar
+            </a>
+</div>
+</aside>
+<!-- Main Content Area -->
+<main class="flex-1 flex flex-col w-full min-h-screen relative overflow-y-auto">
+<!-- TopAppBar (Mobile Only - Simplified for Admin) -->
+<header class="md:hidden flex items-center justify-between px-margin-mobile py-4 border-b border-outline-variant bg-background">
+<h1 class="font-headline-lg-mobile text-headline-lg-mobile font-bold text-on-background">StatusBoard</h1>
+<button class="text-on-surface-variant">
+<span class="material-symbols-outlined">menu</span>
+</button>
+</header>
+<div class="flex-1 p-margin-mobile md:p-gutter max-w-container-max mx-auto w-full flex flex-col justify-center">
+<div class="mb-stack-lg text-center md:text-left">
+<h2 class="font-headline-lg text-headline-lg md:font-headline-lg text-on-surface mb-2">Tambah Monitor Baru</h2>
+<p class="font-body-md text-body-md text-text-muted">Konfigurasi endpoint untuk dipantau secara berkala.</p>
+</div>
+<!-- Form Container -->
+<div class="card-surface rounded-xl p-6 md:p-8 w-full max-w-3xl mx-auto md:mx-0">
+<form action="#" class="space-y-stack-lg" method="POST">
+<!-- Nama Monitor -->
+<div class="flex flex-col gap-stack-sm">
+<label class="font-label-caps text-label-caps text-on-surface" for="nama_monitor">Nama Monitor</label>
+<input class="input-field rounded-lg px-4 py-3 font-body-md text-body-md w-full focus:ring-1 focus:ring-primary focus:border-primary transition-colors dark:bg-surface-container border-outline-variant text-on-surface-variant" id="nama_monitor" name="nama_monitor" placeholder="Masukkan nama layanan" required="" type="text">
+</div>
+<!-- URL -->
+<div class="flex flex-col gap-stack-sm">
+<label class="font-label-caps text-label-caps text-on-surface" for="url">URL</label>
+<input class="input-field rounded-lg px-4 py-3 font-data-mono text-data-mono w-full focus:ring-1 focus:ring-primary focus:border-primary transition-colors dark:bg-surface-container border-outline-variant text-on-surface-variant" id="url" name="url" placeholder="https://api.contoh.com" required="" type="url">
+</div>
+<div class="grid grid-cols-1 md:grid-cols-2 gap-stack-lg">
+<!-- Metode HTTP -->
+<div class="flex flex-col gap-stack-sm">
+<label class="font-label-caps text-label-caps text-on-surface" for="metode">Metode HTTP</label>
+<div class="relative">
+<select class="input-field rounded-lg px-4 py-3 font-data-mono text-data-mono w-full appearance-none pr-10 focus:ring-1 focus:ring-primary focus:border-primary transition-colors" id="metode" name="metode">
+<option value="GET">GET</option>
+<option value="POST">POST</option>
+<option value="HEAD">HEAD</option>
+</select>
+<div class="pointer-events-none absolute inset-y-0 right-0 flex items-center px-4 text-on-surface-variant">
+<span class="material-symbols-outlined text-sm">expand_more</span>
+</div>
+</div>
+</div>
+<!-- Interval Pengecekan -->
+<div class="flex flex-col gap-stack-sm">
+<label class="font-label-caps text-label-caps text-on-surface" for="interval">Interval Pengecekan</label>
+<div class="relative">
+<select class="input-field rounded-lg px-4 py-3 font-body-md text-body-md w-full appearance-none pr-10 focus:ring-1 focus:ring-primary focus:border-primary transition-colors" id="interval" name="interval">
+<option value="1">1 menit</option>
+<option value="5">5 menit</option>
+<option value="15">15 menit</option>
+</select>
+<div class="pointer-events-none absolute inset-y-0 right-0 flex items-center px-4 text-on-surface-variant">
+<span class="material-symbols-outlined text-sm">expand_more</span>
+</div>
+</div>
+</div>
+</div>
+<!-- Status Aktif Toggle -->
+<div class="flex items-center gap-4 pt-4 border-t border-border-subtle mt-4">
+<div class="relative inline-block w-11 mr-2 align-middle select-none">
+<input checked="" class="toggle-checkbox absolute block w-6 h-6 rounded-full bg-white border-4 appearance-none cursor-pointer z-10 opacity-0" id="status_aktif" name="status_aktif" type="checkbox">
+<label class="toggle-label block overflow-hidden h-6 rounded-full bg-gray-300 cursor-pointer" for="status_aktif"></label>
+</div>
+<label class="font-body-md text-body-md text-on-surface cursor-pointer" for="status_aktif">Monitor ini aktif</label>
+</div>
+<!-- Actions -->
+<div class="flex flex-col-reverse md:flex-row justify-end gap-4 pt-stack-md mt-stack-md">
+<button class="btn-ghost py-3 px-6 font-label-caps text-label-caps hover:bg-surface-variant transition-colors text-center whitespace-nowrap" type="button">Batal</button>
+<button class="btn-primary py-3 px-6 font-label-caps text-label-caps hover:opacity-90 transition-opacity text-center flex items-center justify-center gap-2" type="submit">
+<span class="material-symbols-outlined text-sm">save</span>
+                            Simpan
+                        </button>
+</div>
+</form>
+</div>
+</div>
+</main>
+
+
+</body></html>

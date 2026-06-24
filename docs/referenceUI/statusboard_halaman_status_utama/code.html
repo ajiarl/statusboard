@@ -1,0 +1,261 @@
+<!DOCTYPE html><html class="dark" lang="id"><head>
+<meta charset="utf-8">
+<meta content="width=device-width, initial-scale=1.0" name="viewport">
+<title>StatusBoard - Sistem Operasional</title>
+<link href="https://fonts.googleapis.com" rel="preconnect">
+<link crossorigin="" href="https://fonts.gstatic.com" rel="preconnect">
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&amp;family=JetBrains+Mono:wght@500&amp;display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet">
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<script id="tailwind-config">
+        tailwind.config = {
+          darkMode: "class",
+          theme: {
+            extend: {
+              "colors": {
+                      "border-subtle": "#24292E",
+                      "text-muted": "#6A737D",
+                      "on-surface-variant": "#c6c5d7",
+                      "surface-tint": "#bec2ff",
+                      "primary-fixed": "#e0e0ff",
+                      "surface-dim": "#131313",
+                      "on-secondary-fixed-variant": "#454653",
+                      "outline-variant": "#454654",
+                      "on-tertiary-fixed-variant": "#703800",
+                      "surface-container-high": "#2a2a2a",
+                      "inverse-surface": "#e5e2e1",
+                      "on-surface": "#e5e2e1",
+                      "secondary-fixed-dim": "#c6c5d6",
+                      "surface-variant": "#353534",
+                      "background": "#131313",
+                      "primary": "#bec2ff",
+                      "on-tertiary": "#4e2500",
+                      "tertiary": "#ffb781",
+                      "on-tertiary-fixed": "#301400",
+                      "surface-bright": "#3a3939",
+                      "on-secondary-container": "#b8b7c7",
+                      "on-tertiary-container": "#452000",
+                      "surface": "#131313",
+                      "error-container": "#93000a",
+                      "secondary-container": "#474856",
+                      "primary-container": "#7b85ff",
+                      "inverse-on-surface": "#313030",
+                      "surface-container": "#201f1f",
+                      "secondary-fixed": "#e2e1f2",
+                      "on-primary": "#0308a7",
+                      "tertiary-fixed": "#ffdcc5",
+                      "tertiary-container": "#d87820",
+                      "secondary": "#c6c5d6",
+                      "on-error-container": "#ffdad6",
+                      "on-background": "#e5e2e1",
+                      "error": "#ffb4ab",
+                      "primary-fixed-dim": "#bec2ff",
+                      "on-secondary": "#2f2f3c",
+                      "surface-container-lowest": "#0e0e0e",
+                      "status-warning": "#FFBF00",
+                      "outline": "#908fa0",
+                      "on-error": "#690005",
+                      "on-primary-fixed-variant": "#2831bb",
+                      "on-primary-container": "#000396",
+                      "tertiary-fixed-dim": "#ffb781",
+                      "surface-container-highest": "#353534",
+                      "surface-container-low": "#1c1b1b",
+                      "on-secondary-fixed": "#1a1b27",
+                      "status-success": "#28A745",
+                      "status-danger": "#E11D48",
+                      "inverse-primary": "#444dd3",
+                      "on-primary-fixed": "#00026c"
+              },
+              "borderRadius": {
+                      "DEFAULT": "0.125rem",
+                      "lg": "0.25rem",
+                      "xl": "0.5rem",
+                      "full": "0.75rem"
+              },
+              "spacing": {
+                      "container-max": "1200px",
+                      "margin-mobile": "1rem",
+                      "gutter": "1.5rem",
+                      "stack-lg": "2rem",
+                      "stack-md": "1rem",
+                      "stack-sm": "0.5rem"
+              },
+              "fontFamily": {
+                      "headline-lg-mobile": ["Inter"],
+                      "body-md": ["Inter"],
+                      "body-sm": ["Inter"],
+                      "headline-md": ["Inter"],
+                      "label-caps": ["Inter"],
+                      "headline-lg": ["Inter"],
+                      "data-mono": ["JetBrains Mono"]
+              },
+              "fontSize": {
+                      "headline-lg-mobile": ["24px", {"lineHeight": "32px", "fontWeight": "700"}],
+                      "body-md": ["16px", {"lineHeight": "24px", "fontWeight": "400"}],
+                      "body-sm": ["14px", {"lineHeight": "20px", "fontWeight": "400"}],
+                      "headline-md": ["24px", {"lineHeight": "32px", "letterSpacing": "-0.01em", "fontWeight": "600"}],
+                      "label-caps": ["12px", {"lineHeight": "16px", "letterSpacing": "0.05em", "fontWeight": "600"}],
+                      "headline-lg": ["32px", {"lineHeight": "40px", "letterSpacing": "-0.02em", "fontWeight": "700"}],
+                      "data-mono": ["14px", {"lineHeight": "20px", "fontWeight": "500"}]
+              }
+            }
+          }
+        }
+    </script>
+<style>
+        .tick-bar { display: flex; gap: 2px; width: 100%; height: 32px; margin-bottom: 1rem; }
+        .tick { flex: 1; border-radius: 2px; background-color: theme('colors.status-success'); opacity: 0.8; transition: opacity 0.2s; }
+        .tick:hover { opacity: 1; }
+        .tick.warning { background-color: theme('colors.status-warning'); }
+        .tick.danger { background-color: theme('colors.status-danger'); }
+        .tick.empty { background-color: theme('colors.surface-variant'); }
+    </style>
+</head>
+<body class="bg-surface-container-lowest text-on-surface font-body-md min-h-screen flex flex-col">
+<!-- TopNavBar (Shared Component) -->
+<header class="bg-background dark:bg-background border-b border-border-subtle dark:border-border-subtle docked full-width top-0 z-50">
+<div class="flex justify-between items-center w-full px-gutter max-w-container-max mx-auto h-16">
+<!-- Brand & Status -->
+<div class="flex items-center gap-4">
+<span class="font-headline-md text-headline-md font-bold text-on-surface dark:text-on-surface">StatusBoard</span>
+</div>
+<!-- Navigation Links (Desktop) -->
+<nav class="hidden md:flex items-end h-full gap-8">
+<a class="text-primary font-bold border-b-2 border-primary pb-1 h-full flex items-center mt-[2px]" href="#">Dashboard</a>
+<a class="text-text-muted font-body-sm text-body-sm hover:text-primary transition-colors duration-200 h-full flex items-center" href="#">History</a>
+<a class="text-text-muted font-body-sm text-body-sm hover:text-primary transition-colors duration-200 h-full flex items-center" href="#">API</a>
+</nav>
+<!-- Trailing Action -->
+<button class="bg-[#606AF0] hover:bg-primary-container text-white font-body-sm px-4 py-2 rounded transition-colors duration-150">
+                Subscribe
+            </button>
+</div>
+</header>
+<!-- Main Content Canvas -->
+<main class="flex-grow w-full max-w-container-max mx-auto px-gutter py-stack-lg flex flex-col gap-stack-lg">
+<!-- Global Banner -->
+<div class="w-full bg-[#1A2E20] border border-status-success/30 rounded-lg p-stack-md flex items-center justify-center gap-3">
+<span class="material-symbols-outlined text-status-success" style="font-variation-settings: 'FILL' 1;">check_circle</span>
+<span class="font-headline-md text-[20px] text-status-success">Semua Sistem Berjalan Lancar</span>
+</div>
+<!-- Monitor List Section -->
+<section class="flex flex-col gap-stack-md">
+<!-- Card: Snip -->
+<div class="bg-surface border border-border-subtle rounded-xl p-gutter hover:bg-surface-container-high transition-colors duration-200 flex flex-col gap-stack-sm">
+<div class="flex justify-between items-center mb-stack-sm">
+<h2 class="font-headline-md text-headline-md text-on-surface">Snip</h2>
+<div class="flex items-center gap-2 bg-status-success/10 border border-status-success/20 px-3 py-1 rounded-full">
+<div class="w-2 h-2 rounded-full bg-status-success"></div>
+<span class="font-label-caps text-label-caps text-status-success">Operasional</span>
+</div>
+</div>
+<!-- Visual Ticks -->
+<div class="tick-bar" title="Uptime 90 hari terakhir">
+<div class="tick"></div><div class="tick"></div><div class="tick"></div><div class="tick"></div><div class="tick"></div><div class="tick"></div><div class="tick"></div><div class="tick"></div><div class="tick"></div><div class="tick"></div><div class="tick"></div><div class="tick"></div><div class="tick"></div><div class="tick"></div><div class="tick"></div><div class="tick"></div><div class="tick"></div><div class="tick"></div><div class="tick"></div><div class="tick"></div><div class="tick"></div><div class="tick"></div><div class="tick"></div><div class="tick"></div><div class="tick"></div><div class="tick"></div><div class="tick"></div><div class="tick"></div><div class="tick"></div><div class="tick"></div>
+</div>
+<!-- Uptime Pills -->
+<div class="flex flex-wrap gap-3 mb-stack-sm">
+<div class="bg-surface-container border border-border-subtle rounded px-2 py-1 flex items-center gap-2">
+<span class="font-label-caps text-text-muted">24j</span>
+<span class="font-data-mono text-status-success">100%</span>
+</div>
+<div class="bg-surface-container border border-border-subtle rounded px-2 py-1 flex items-center gap-2">
+<span class="font-label-caps text-text-muted">7h</span>
+<span class="font-data-mono text-status-success">99.9%</span>
+</div>
+<div class="bg-surface-container border border-border-subtle rounded px-2 py-1 flex items-center gap-2">
+<span class="font-label-caps text-text-muted">30h</span>
+<span class="font-data-mono text-status-success">99.9%</span>
+</div>
+</div>
+<div class="mt-auto border-t border-border-subtle pt-stack-sm">
+<p class="font-data-mono text-text-muted text-body-sm">Terakhir dicek: 2 menit yang lalu</p>
+</div>
+</div>
+<!-- Card: SiMagang -->
+<div class="bg-surface border border-border-subtle rounded-xl p-gutter hover:bg-surface-container-high transition-colors duration-200 flex flex-col gap-stack-sm">
+<div class="flex justify-between items-center mb-stack-sm">
+<h2 class="font-headline-md text-headline-md text-on-surface">SiMagang</h2>
+<div class="flex items-center gap-2 bg-status-success/10 border border-status-success/20 px-3 py-1 rounded-full">
+<div class="w-2 h-2 rounded-full bg-status-success"></div>
+<span class="font-label-caps text-label-caps text-status-success">Operasional</span>
+</div>
+</div>
+<!-- Visual Ticks -->
+<div class="tick-bar" title="Uptime 90 hari terakhir">
+<div class="tick"></div><div class="tick"></div><div class="tick"></div><div class="tick"></div><div class="tick"></div><div class="tick"></div><div class="tick"></div><div class="tick"></div><div class="tick"></div><div class="tick"></div><div class="tick"></div><div class="tick warning"></div><div class="tick warning"></div><div class="tick"></div><div class="tick"></div><div class="tick"></div><div class="tick"></div><div class="tick"></div><div class="tick"></div><div class="tick"></div><div class="tick"></div><div class="tick"></div><div class="tick"></div><div class="tick"></div><div class="tick"></div><div class="tick"></div><div class="tick"></div><div class="tick"></div><div class="tick"></div><div class="tick"></div>
+</div>
+<!-- Uptime Pills -->
+<div class="flex flex-wrap gap-3 mb-stack-sm">
+<div class="bg-surface-container border border-border-subtle rounded px-2 py-1 flex items-center gap-2">
+<span class="font-label-caps text-text-muted">24j</span>
+<span class="font-data-mono text-status-success">100%</span>
+</div>
+<div class="bg-surface-container border border-border-subtle rounded px-2 py-1 flex items-center gap-2">
+<span class="font-label-caps text-text-muted">7h</span>
+<span class="font-data-mono text-status-success">100%</span>
+</div>
+<div class="bg-surface-container border border-border-subtle rounded px-2 py-1 flex items-center gap-2">
+<span class="font-label-caps text-text-muted">30h</span>
+<span class="font-data-mono text-status-warning">99.8%</span>
+</div>
+</div>
+<div class="mt-auto border-t border-border-subtle pt-stack-sm">
+<p class="font-data-mono text-text-muted text-body-sm">Terakhir dicek: 5 menit yang lalu</p>
+</div>
+</div>
+</section>
+<!-- Active Incidents Section -->
+<section class="mt-stack-lg">
+<h3 class="font-headline-lg text-headline-lg text-on-surface mb-stack-md">Insiden Aktif</h3>
+<div class="bg-surface-container border border-border-subtle border-dashed rounded-lg p-stack-md flex items-center justify-center">
+<p class="font-body-md text-text-muted">Tidak ada insiden aktif saat ini.</p>
+</div>
+</section>
+<!-- Incident History Section -->
+<section class="mt-stack-lg">
+<h3 class="font-headline-lg text-headline-lg text-on-surface mb-stack-md">Riwayat Insiden</h3>
+<div class="relative border-l border-border-subtle ml-3 pl-6 pb-4 flex flex-col gap-stack-md">
+<!-- History Item 1 -->
+<div class="relative">
+<div class="absolute -left-[31px] top-1 w-3 h-3 bg-status-success rounded-full ring-4 ring-background"></div>
+<div class="flex flex-col gap-1">
+<div class="flex items-center gap-3">
+<h4 class="font-headline-md text-[18px] text-on-surface">Masalah Konektivitas Database</h4>
+<span class="font-label-caps text-[10px] bg-surface-container px-2 py-0.5 rounded text-text-muted">Terselesaikan</span>
+</div>
+<time class="font-data-mono text-text-muted text-body-sm">12 Okt 2024</time>
+<p class="font-body-md text-on-surface-variant mt-2 max-w-2xl">Kami telah mengidentifikasi dan menyelesaikan masalah yang menyebabkan latensi tinggi pada koneksi database utama. Semua layanan telah kembali normal.</p>
+</div>
+</div>
+<!-- History Item 2 -->
+<div class="relative mt-stack-md">
+<div class="absolute -left-[31px] top-1 w-3 h-3 bg-text-muted rounded-full ring-4 ring-background"></div>
+<div class="flex flex-col gap-1">
+<div class="flex items-center gap-3">
+<h4 class="font-headline-md text-[18px] text-on-surface">Pemeliharaan Terjadwal</h4>
+<span class="font-label-caps text-[10px] bg-surface-container px-2 py-0.5 rounded text-text-muted">Selesai</span>
+</div>
+<time class="font-data-mono text-text-muted text-body-sm">05 Okt 2024</time>
+<p class="font-body-md text-on-surface-variant mt-2 max-w-2xl">Pemeliharaan infrastruktur rutin telah berhasil diselesaikan tanpa waktu henti yang berarti.</p>
+</div>
+</div>
+</div>
+</section>
+</main>
+<!-- Footer (Shared Component) -->
+<footer class="bg-surface-container-lowest dark:bg-surface-container-lowest border-t border-border-subtle dark:border-border-subtle full-width bottom-0 mt-auto">
+<div class="w-full py-stack-lg px-gutter max-w-container-max mx-auto flex flex-col md:flex-row justify-between items-center gap-stack-md">
+<div class="font-body-sm text-body-sm text-text-muted">
+                © 2024 StatusBoard. All systems monitored.
+            </div>
+<nav class="flex flex-wrap gap-4 md:gap-6 justify-center">
+<a class="text-text-muted font-body-sm text-body-sm hover:text-on-surface transition-colors duration-200" href="#">Privacy Policy</a>
+<a class="text-text-muted font-body-sm text-body-sm hover:text-on-surface transition-colors duration-200" href="#">Terms of Service</a>
+<a class="text-text-muted font-body-sm text-body-sm hover:text-on-surface transition-colors duration-200" href="#">Contact Support</a>
+<a class="text-primary underline font-body-sm text-body-sm hover:text-on-surface transition-colors duration-200" href="#">System Status</a>
+</nav>
+</div>
+</footer>
+</body></html>
