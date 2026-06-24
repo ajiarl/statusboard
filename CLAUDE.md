@@ -4,9 +4,8 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 
 ## UI/UX Skill Rules
 Whenever touching any UI/UX code, always load and apply these skills:
-- ~/.claude/skills/impeccable/SKILL.md
-- ~/.claude/skills/design-taste-frontend/SKILL.md
-- ~/.claude/skills/ui-ux-pro-max/SKILL.md
+- docs/skills/impeccable/SKILL.md
+- docs/skills/design-taste-frontend/SKILL.md
 
 No exceptions. Every component, every page, every style change.
 
