@@ -6,6 +6,7 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 Whenever touching any UI/UX code, always load and apply these skills:
 - docs/skills/impeccable/SKILL.md
 - docs/skills/design-taste-frontend/SKILL.md
+- docs/skills/ui-ux-pro-max/SKILL.md
 
 No exceptions. Every component, every page, every style change.
 
