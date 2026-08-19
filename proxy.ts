@@ -55,6 +55,16 @@ export async function proxy(request: NextRequest) {
   const { pathname } = request.nextUrl;
   const method = request.method;
 
+  // Redirect logged-in users away from /admin/login
+  if (pathname === "/admin/login") {
+    const res = NextResponse.next();
+    const session = await getIronSession<SessionData>(request, res, sessionOptions);
+    if (session.isLoggedIn === true) {
+      return NextResponse.redirect(new URL("/admin", request.url));
+    }
+    return res;
+  }
+
   // 1. Check if route requires authentication
   const needsAuth =
     isProtectedAdminRoute(pathname) ||
