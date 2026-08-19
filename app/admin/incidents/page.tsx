@@ -80,7 +80,7 @@ export default function IncidentsPage() {
                     <th className="px-6 py-4 text-xs font-semibold uppercase tracking-[0.05em] text-[#6A737D]">Judul Insiden</th>
                     <th className="px-6 py-4 text-xs font-semibold uppercase tracking-[0.05em] text-[#6A737D]">Severitas</th>
                     <th className="px-6 py-4 text-xs font-semibold uppercase tracking-[0.05em] text-[#6A737D]">Status</th>
-                    <th className="px-6 py-4 text-xs font-semibold uppercase tracking-[0.05em] text-[#6A737D]">Tanggal Dibuat</th>
+                    <th className="px-6 py-4 text-xs font-semibold uppercase tracking-[0.05em] text-[#6A737D] hidden md:table-cell">Tanggal Dibuat</th>
                     <th className="px-6 py-4 text-xs font-semibold uppercase tracking-[0.05em] text-[#6A737D] text-right">Aksi</th>
                   </tr>
                 </thead>
@@ -101,9 +101,9 @@ export default function IncidentsPage() {
                             {st.label}
                           </span>
                         </td>
-                        <td className="px-6 py-5 font-data-mono text-[#c6c5d7]">{formatDateMono(inc.createdAt)}</td>
+                        <td className="px-6 py-5 font-data-mono text-[#c6c5d7] hidden md:table-cell">{formatDateMono(inc.createdAt)}</td>
                         <td className="px-6 py-5 text-right">
-                          <div className="flex justify-end gap-3 opacity-0 group-hover:opacity-100 transition-opacity">
+                          <div className="flex justify-end gap-3 opacity-100 md:opacity-0 md:group-hover:opacity-100 transition-opacity">
                             <Link
                               href={`/admin/incidents/${inc.id}`}
                               className="text-[#c6c5d7] hover:text-[#bec2ff] transition-colors"

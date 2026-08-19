@@ -11,7 +11,6 @@ di akhir setiap sesi (pindahkan task dari "In Progress" ke "Done", atau ke
 ### Continuous — Edge Case & Error Handling
 
 ### Continuous — Accessibility & UX
-- [ ] `app/admin/incidents/page.tsx` — action buttons: ganti `opacity-0 group-hover:opacity-100` jadi selalu visible di mobile (md:opacity-0 md:group-hover:opacity-100); hide kolom low-priority di mobile
 
 
 ## In Progress
@@ -57,6 +56,7 @@ di akhir setiap sesi (pindahkan task dari "In Progress" ke "Done", atau ke
 - [x] Hardening: validate UUID path/body parameters in API routes (2026-08-20)
 - [x] Accessibility: add role="alert" to all admin form error messages (2026-08-20)
 - [x] Accessibility: add ARIA properties (role="switch", aria-checked, role="dialog") to admin page (2026-08-20)
+- [x] Responsive: show action buttons and hide low-priority columns on mobile in incident list page (2026-08-20)
 
 ## Butuh Review Manusia
 <!-- Kilo pindahkan ke sini kalau verifier gagal 3x berturut-turut.
