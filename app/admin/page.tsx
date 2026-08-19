@@ -75,8 +75,42 @@ export default function AdminPage() {
 
   if (loading) {
     return (
-      <div className="flex items-center justify-center py-20">
-        <div className="text-[#6A737D]">Memuat monitor...</div>
+      <div className="animate-pulse space-y-4">
+        <div className="bg-[#171824] border border-[#24292E] rounded-xl overflow-hidden">
+          <div className="hidden md:grid grid-cols-12 gap-4 p-4 border-b border-[#24292E] bg-[#1c1b1b]">
+            <div className="col-span-3 h-4 bg-[#353534] rounded w-1/2" />
+            <div className="col-span-2 h-4 bg-[#353534] rounded w-1/3" />
+            <div className="col-span-2 h-4 bg-[#353534] rounded w-1/3" />
+            <div className="col-span-3 h-4 bg-[#353534] rounded w-1/2" />
+            <div className="col-span-1 h-4 bg-[#353534] rounded w-1/2 mx-auto" />
+            <div className="col-span-1 h-4 bg-[#353534] rounded w-1/2 ml-auto" />
+          </div>
+          <div className="divide-y divide-[#24292E]">
+            {[1, 2, 3].map((i) => (
+              <div key={i} className="p-4 grid grid-cols-1 md:grid-cols-12 gap-4 items-center">
+                <div className="col-span-3 space-y-2">
+                  <div className="h-4 bg-[#353534] rounded w-3/4" />
+                  <div className="h-3 bg-[#353534] rounded w-1/2" />
+                </div>
+                <div className="col-span-2">
+                  <div className="h-6 bg-[#353534] rounded w-12" />
+                </div>
+                <div className="col-span-2">
+                  <div className="h-6 bg-[#353534] rounded w-20" />
+                </div>
+                <div className="col-span-3">
+                  <div className="h-3 bg-[#353534] rounded w-2/3" />
+                </div>
+                <div className="col-span-1">
+                  <div className="h-5 bg-[#353534] rounded-full w-9 md:mx-auto" />
+                </div>
+                <div className="col-span-1">
+                  <div className="h-6 bg-[#353534] rounded w-8 md:ml-auto" />
+                </div>
+              </div>
+            ))}
+          </div>
+        </div>
       </div>
     );
   }

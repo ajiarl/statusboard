@@ -68,8 +68,31 @@ export default function EditMonitorPage({ params }: EditMonitorPageProps) {
 
   if (loading) {
     return (
-      <div className="flex items-center justify-center py-20">
-        <div className="text-[#6A737D]">Memuat monitor...</div>
+      <div className="animate-pulse max-w-3xl space-y-6">
+        <div className="space-y-2">
+          <div className="h-8 bg-[#353534] rounded w-1/4" />
+          <div className="h-4 bg-[#353534] rounded w-1/3" />
+        </div>
+        <div className="bg-[#171824] border border-[#24292E] rounded-xl p-6 md:p-8 space-y-6">
+          <div className="space-y-2">
+            <div className="h-4 bg-[#353534] rounded w-20" />
+            <div className="h-12 bg-[#201f1f] rounded-lg border border-[#24292E]" />
+          </div>
+          <div className="space-y-2">
+            <div className="h-4 bg-[#353534] rounded w-12" />
+            <div className="h-12 bg-[#201f1f] rounded-lg border border-[#24292E]" />
+          </div>
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
+            <div className="space-y-2">
+              <div className="h-4 bg-[#353534] rounded w-24" />
+              <div className="h-12 bg-[#201f1f] rounded-lg border border-[#24292E]" />
+            </div>
+            <div className="space-y-2">
+              <div className="h-4 bg-[#353534] rounded w-28" />
+              <div className="h-12 bg-[#201f1f] rounded-lg border border-[#24292E]" />
+            </div>
+          </div>
+        </div>
       </div>
     );
   }

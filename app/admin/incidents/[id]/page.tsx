@@ -120,8 +120,28 @@ export default function IncidentDetailPage({ params }: IncidentDetailPageProps) 
 
   if (loading) {
     return (
-      <div className="flex items-center justify-center py-20">
-        <div className="text-[#6A737D]">Memuat insiden...</div>
+      <div className="animate-pulse max-w-3xl space-y-8">
+        <div className="space-y-3">
+          <div className="h-8 bg-[#353534] rounded w-1/2" />
+          <div className="flex items-center gap-3">
+            <div className="h-6 bg-[#353534] rounded-full w-24" />
+            <div className="h-4 bg-[#353534] rounded w-1/3" />
+          </div>
+        </div>
+        <div className="space-y-4">
+          <div className="h-4 bg-[#353534] rounded w-16" />
+          <div className="border-l border-[#24292E] ml-3 pl-6 space-y-6">
+            {[1, 2].map((i) => (
+              <div key={i} className="space-y-2">
+                <div className="flex items-center gap-2">
+                  <div className="h-6 bg-[#353534] rounded-full w-20" />
+                  <div className="h-4 bg-[#353534] rounded w-28" />
+                </div>
+                <div className="h-4 bg-[#353534] rounded w-3/4" />
+              </div>
+            ))}
+          </div>
+        </div>
       </div>
     );
   }
