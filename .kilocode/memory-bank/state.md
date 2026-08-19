@@ -7,7 +7,6 @@ di akhir setiap sesi (pindahkan task dari "In Progress" ke "Done", atau ke
 ## Next
 <!-- Tambahkan task baru di sini, satu baris per task, checklist format -->
 ### Continuous — Security Hardening
-- [ ] `lib/check.ts` — ganti `redirect: "follow"` ke `redirect: "manual"`, validasi tiap hop Location header via `isPrivateUrl`, max 5 redirect
 
 ### Continuous — Edge Case & Error Handling
 - [ ] Semua API route (`monitors/route`, `monitors/[id]/route`, `incidents/route`, `incidents/[id]/route`, `incidents/[id]/updates/route`) — wrap body parsing + DB ops dalam try/catch, return JSON error 400/500 yang proper
@@ -21,7 +20,6 @@ di akhir setiap sesi (pindahkan task dari "In Progress" ke "Done", atau ke
 
 ## In Progress
 <!-- Kilo pindahkan task ke sini saat mulai kerja -->
-- [ ] `lib/ssrf.ts` — tambah regex IPv6-mapped IPv4, block 0.0.0.0
 
 ## Done (7 hari terakhir)
 <!-- Kilo pindahkan ke sini setelah verifier lulus. Sertakan tanggal. -->
@@ -58,6 +56,7 @@ di akhir setiap sesi (pindahkan task dari "In Progress" ke "Done", atau ke
 - [x] Design Conformance: admin new incident → form sesuai referensi (2026-08-20)
 - [x] Hardening `lib/ssrf.ts` — IPv6-mapped IPv4, block 0.0.0.0 (2026-08-20)
 - [x] Hardening `lib/ssrf.ts` — alternate IP encodings block (hex, octal, decimal) (2026-08-20)
+- [x] Hardening `lib/check.ts` — manual redirect following + hop validation (2026-08-20)
 
 ## Butuh Review Manusia
 <!-- Kilo pindahkan ke sini kalau verifier gagal 3x berturut-turut.
