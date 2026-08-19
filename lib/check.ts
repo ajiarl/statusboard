@@ -5,7 +5,7 @@ import { isPrivateUrl } from "@/lib/ssrf";
 type Monitor = InferSelectModel<typeof monitors>;
 
 export interface CheckResult {
-  status: "up" | "down";
+  status: "up" | "down" | "degraded";
   statusCode: number | null;
   responseTimeMs: number;
 }
@@ -56,7 +56,6 @@ export async function checkMonitor(monitor: Monitor): Promise<CheckResult> {
         const resolvedUrl = new URL(location, currentUrl).toString();
         currentUrl = resolvedUrl;
 
-        // Standard redirect behavior: 301, 302, and 303 switch method to GET (except HEAD which stays HEAD)
         if ([301, 302, 303].includes(res.status)) {
           if (currentMethod !== "HEAD") {
             currentMethod = "GET";
@@ -69,7 +68,12 @@ export async function checkMonitor(monitor: Monitor): Promise<CheckResult> {
     }
 
     const responseTimeMs = Math.round(performance.now() - start);
-    const status = lastResponseStatus === monitor.expectedStatus ? "up" : "down";
+    let status: "up" | "down" | "degraded";
+    if (lastResponseStatus === monitor.expectedStatus) {
+      status = responseTimeMs > 3000 ? "degraded" : "up";
+    } else {
+      status = "down";
+    }
 
     return { status, statusCode: lastResponseStatus, responseTimeMs };
   } catch {

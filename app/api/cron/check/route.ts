@@ -41,7 +41,7 @@ export async function GET(request: NextRequest) {
           }
         } else {
           newConsecutiveFailures = 0;
-          newCurrentStatus = "up";
+          newCurrentStatus = result.status;
         }
 
         await db

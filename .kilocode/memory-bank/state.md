@@ -61,6 +61,7 @@ di akhir setiap sesi (pindahkan task dari "In Progress" ke "Done", atau ke
 - [x] Accessibility: add aria-invalid and aria-describedby for login form inputs when verification fails (2026-08-20)
 - [x] Cleanup: remove temporary test-hash.js development script from repository (2026-08-20)
 - [x] Auth UX: redirect logged-in users away from /admin/login back to /admin in proxy (2026-08-20)
+- [x] Hardening: implement degraded status when monitor response is successful but latency is > 3000ms (2026-08-20)
 
 ## Butuh Review Manusia
 <!-- Kilo pindahkan ke sini kalau verifier gagal 3x berturut-turut.
