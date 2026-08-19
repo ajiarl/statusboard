@@ -8,7 +8,8 @@ di akhir setiap sesi (pindahkan task dari "In Progress" ke "Done", atau ke
 <!-- Tambahkan task baru di sini, satu baris per task, checklist format -->
 ### Continuous — UX Improvement (Loading & Error States)
 
-### Continuous — Edge Case & Error Handling
+### Continuous — Dokumentasi
+- [ ] `docs/IMPLEMENTATION.md` — update progress tracker to mark completed phases (Fase 1-6)
 
 
 ## In Progress
@@ -58,6 +59,7 @@ di akhir setiap sesi (pindahkan task dari "In Progress" ke "Done", atau ke
 - [x] UX: add premium animated Tailwind CSS pulse loading skeletons to all admin pages (2026-08-20)
 - [x] UX: handle mount fetch failures by displaying error banner with retry/back actions in admin monitors/incidents pages (2026-08-20)
 - [x] Hardening: wrap cron check API route database operations in try/catch to return 500 error on failures (2026-08-20)
+- [x] UX: handle loading and error states for dropdown fetch on new incident page (2026-08-20)
 
 ## Butuh Review Manusia
 <!-- Kilo pindahkan ke sini kalau verifier gagal 3x berturut-turut.

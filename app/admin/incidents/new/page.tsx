@@ -16,11 +16,26 @@ export default function NewIncidentPage() {
   const [monitors, setMonitors] = useState<Monitor[]>([]);
   const [error, setError] = useState("");
   const [isSubmitting, setIsSubmitting] = useState(false);
+  const [loadingMonitors, setLoadingMonitors] = useState(true);
 
   useEffect(() => {
     fetch("/api/monitors")
-      .then((r) => r.json())
-      .then(setMonitors);
+      .then((r) => {
+        if (!r.ok) {
+          throw new Error("HTTP error " + r.status);
+        }
+        return r.json();
+      })
+      .then((data) => {
+        setMonitors(data);
+      })
+      .catch((err) => {
+        console.error("Fetch monitors error:", err);
+        setError("Gagal memuat daftar monitor. Pastikan database aktif.");
+      })
+      .finally(() => {
+        setLoadingMonitors(false);
+      });
   }, []);
 
   const handleSubmit = async (e: FormEvent<HTMLFormElement>) => {
@@ -123,12 +138,19 @@ export default function NewIncidentPage() {
                   id="monitor"
                   value={monitorId}
                   onChange={(e) => setMonitorId(e.target.value)}
-                  className="input-inset block w-full px-4 py-3 text-base rounded-lg appearance-none pr-10"
+                  disabled={loadingMonitors}
+                  className="input-inset block w-full px-4 py-3 text-base rounded-lg appearance-none pr-10 disabled:opacity-50"
                 >
-                  <option value="">Tidak ada</option>
-                  {monitors.map((m) => (
-                    <option key={m.id} value={m.id}>{m.name}</option>
-                  ))}
+                  {loadingMonitors ? (
+                    <option>Memuat monitor...</option>
+                  ) : (
+                    <>
+                      <option value="">Tidak ada</option>
+                      {monitors.map((m) => (
+                        <option key={m.id} value={m.id}>{m.name}</option>
+                      ))}
+                    </>
+                  )}
                 </select>
                 <div className="pointer-events-none absolute inset-y-0 right-0 flex items-center px-4 text-[#c6c5d7]">
                   <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="m6 9 6 6 6-6"/></svg>
