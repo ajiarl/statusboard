@@ -56,6 +56,7 @@ export default function LoginPage() {
           <form onSubmit={handleSubmit} className="space-y-4">
             {error && (
               <div
+                id="login-error"
                 className="rounded px-4 py-3 text-sm"
                 style={{
                   backgroundColor: "rgba(225, 29, 72, 0.1)",
@@ -88,6 +89,8 @@ export default function LoginPage() {
                   placeholder="••••••••"
                   required
                   disabled={isLoading}
+                  aria-invalid={!!error}
+                  aria-describedby={error ? "login-error" : undefined}
                   className="input-inset block w-full pl-10 pr-3 py-2 text-base text-[#e5e2e1] rounded bg-[#0F0F0F] disabled:opacity-50 disabled:cursor-not-allowed"
                   autoComplete="current-password"
                 />

@@ -58,6 +58,7 @@ di akhir setiap sesi (pindahkan task dari "In Progress" ke "Done", atau ke
 - [x] UX: handle loading and error states for dropdown fetch on new incident page (2026-08-20)
 - [x] Dokumentasi: update docs/IMPLEMENTATION.md progress tracker to mark Fase 1-6 as completed (2026-08-20)
 - [x] Responsive: implement mobile drawer navigation menu and header toggle button in admin layout (2026-08-20)
+- [x] Accessibility: add aria-invalid and aria-describedby for login form inputs when verification fails (2026-08-20)
 
 ## Butuh Review Manusia
 <!-- Kilo pindahkan ke sini kalau verifier gagal 3x berturut-turut.
