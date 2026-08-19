@@ -9,7 +9,6 @@ di akhir setiap sesi (pindahkan task dari "In Progress" ke "Done", atau ke
 ### Continuous — UX Improvement (Loading & Error States)
 
 ### Continuous — Edge Case & Error Handling
-- [ ] `app/api/cron/check/route.ts` — wrap database queries and check execution in try/catch to return 500 JSON error instead of unhandled crash
 
 
 ## In Progress
@@ -58,6 +57,7 @@ di akhir setiap sesi (pindahkan task dari "In Progress" ke "Done", atau ke
 - [x] Responsive: show action buttons and hide low-priority columns on mobile in incident list page (2026-08-20)
 - [x] UX: add premium animated Tailwind CSS pulse loading skeletons to all admin pages (2026-08-20)
 - [x] UX: handle mount fetch failures by displaying error banner with retry/back actions in admin monitors/incidents pages (2026-08-20)
+- [x] Hardening: wrap cron check API route database operations in try/catch to return 500 error on failures (2026-08-20)
 
 ## Butuh Review Manusia
 <!-- Kilo pindahkan ke sini kalau verifier gagal 3x berturut-turut.
