@@ -7,7 +7,6 @@ di akhir setiap sesi (pindahkan task dari "In Progress" ke "Done", atau ke
 ## Next
 <!-- Tambahkan task baru di sini, satu baris per task, checklist format -->
 ### Continuous — UX Improvement (Loading & Error States)
-- [ ] `app/admin/monitors/[id]/edit/page.tsx` and `app/admin/incidents/[id]/page.tsx` — handle mount fetch failures by displaying an error banner with retry option instead of failing silently or showing empty page
 
 ### Continuous — Edge Case & Error Handling
 - [ ] `app/api/cron/check/route.ts` — wrap database queries and check execution in try/catch to return 500 JSON error instead of unhandled crash
@@ -58,6 +57,7 @@ di akhir setiap sesi (pindahkan task dari "In Progress" ke "Done", atau ke
 - [x] Accessibility: add ARIA properties (role="switch", aria-checked, role="dialog") to admin page (2026-08-20)
 - [x] Responsive: show action buttons and hide low-priority columns on mobile in incident list page (2026-08-20)
 - [x] UX: add premium animated Tailwind CSS pulse loading skeletons to all admin pages (2026-08-20)
+- [x] UX: handle mount fetch failures by displaying error banner with retry/back actions in admin monitors/incidents pages (2026-08-20)
 
 ## Butuh Review Manusia
 <!-- Kilo pindahkan ke sini kalau verifier gagal 3x berturut-turut.

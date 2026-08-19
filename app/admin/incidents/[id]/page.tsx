@@ -50,22 +50,37 @@ export default function IncidentDetailPage({ params }: IncidentDetailPageProps) 
   const [updateMessage, setUpdateMessage] = useState("");
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [error, setError] = useState("");
+  const [fetchError, setFetchError] = useState("");
 
   const fetchData = useCallback(async () => {
     try {
+      setFetchError("");
       const [incRes, updatesRes] = await Promise.all([
         fetch("/api/incidents"),
         fetch(`/api/incidents/${id}/updates`),
       ]);
 
+      if (!incRes.ok) {
+        throw new Error("HTTP error: " + incRes.status);
+      }
+
       const allIncidents = await incRes.json();
       const inc = allIncidents.find((i: Incident) => i.id === id);
-      setIncident(inc || null);
+      
+      if (!inc) {
+        setFetchError("Insiden tidak ditemukan");
+        return;
+      }
+
+      setIncident(inc);
 
       if (updatesRes.ok) {
         const updatesData = await updatesRes.json();
         setUpdates(Array.isArray(updatesData) ? updatesData : []);
       }
+    } catch (err) {
+      console.error("fetchData error:", err);
+      setFetchError("Gagal memuat detail insiden. Pastikan database aktif.");
     } finally {
       setLoading(false);
     }
@@ -141,6 +156,32 @@ export default function IncidentDetailPage({ params }: IncidentDetailPageProps) 
               </div>
             ))}
           </div>
+        </div>
+      </div>
+    );
+  }
+
+  if (fetchError) {
+    return (
+      <div className="max-w-3xl card-level-1 rounded-xl p-8 text-center space-y-4">
+        <h2 className="text-xl font-bold text-[#E11D48]">Error Memuat Data</h2>
+        <p className="text-sm text-[#6A737D]">{fetchError}</p>
+        <div className="flex justify-center gap-3">
+          <button
+            onClick={() => {
+              setLoading(true);
+              fetchData();
+            }}
+            className="btn-primary px-5 py-2 text-sm font-semibold transition-opacity"
+          >
+            Coba Lagi
+          </button>
+          <button
+            onClick={() => router.push("/admin/incidents")}
+            className="btn-ghost px-5 py-2 text-sm transition-colors"
+          >
+            Kembali
+          </button>
         </div>
       </div>
     );

@@ -17,11 +17,15 @@ export default function EditMonitorPage({ params }: EditMonitorPageProps) {
   const [error, setError] = useState("");
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [loading, setLoading] = useState(true);
+  const [retryTrigger, setRetryTrigger] = useState(0);
 
   useEffect(() => {
     async function load() {
       try {
         const res = await fetch("/api/monitors");
+        if (!res.ok) {
+          throw new Error("HTTP error " + res.status);
+        }
         const monitors = await res.json();
         const monitor = monitors.find((m: { id: string }) => m.id === id);
         if (monitor) {
@@ -32,12 +36,15 @@ export default function EditMonitorPage({ params }: EditMonitorPageProps) {
         } else {
           setError("Monitor tidak ditemukan");
         }
+      } catch (err) {
+        console.error("Load monitor error:", err);
+        setError("Gagal memuat data monitor. Pastikan database aktif.");
       } finally {
         setLoading(false);
       }
     }
     load();
-  }, [id]);
+  }, [id, retryTrigger]);
 
   const handleSubmit = async (e: FormEvent<HTMLFormElement>) => {
     e.preventDefault();
@@ -92,6 +99,33 @@ export default function EditMonitorPage({ params }: EditMonitorPageProps) {
               <div className="h-12 bg-[#201f1f] rounded-lg border border-[#24292E]" />
             </div>
           </div>
+        </div>
+      </div>
+    );
+  }
+
+  if (error && !name) {
+    return (
+      <div className="max-w-3xl card-level-1 rounded-xl p-8 text-center space-y-4">
+        <h2 className="text-xl font-bold text-[#E11D48]">Error Memuat Data</h2>
+        <p className="text-sm text-[#6A737D]">{error}</p>
+        <div className="flex justify-center gap-3">
+          <button
+            onClick={() => {
+              setLoading(true);
+              setError("");
+              setRetryTrigger((prev) => prev + 1);
+            }}
+            className="btn-primary px-5 py-2 text-sm font-semibold transition-opacity"
+          >
+            Coba Lagi
+          </button>
+          <button
+            onClick={() => router.push("/admin")}
+            className="btn-ghost px-5 py-2 text-sm transition-colors"
+          >
+            Kembali
+          </button>
         </div>
       </div>
     );
