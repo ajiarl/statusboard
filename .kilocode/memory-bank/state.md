@@ -6,8 +6,6 @@ di akhir setiap sesi (pindahkan task dari "In Progress" ke "Done", atau ke
 
 ## Next
 <!-- Tambahkan task baru di sini, satu baris per task, checklist format -->
-### Continuous — Responsive & UX Gaps
-- [ ] `app/admin/layout.tsx` — implement mobile navigation menu/drawer with toggle button in header to allow mobile users to switch pages and logout
 
 
 ## In Progress
