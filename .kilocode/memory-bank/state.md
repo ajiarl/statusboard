@@ -9,8 +9,6 @@ di akhir setiap sesi (pindahkan task dari "In Progress" ke "Done", atau ke
 ### Continuous — Security Hardening
 
 ### Continuous — Edge Case & Error Handling
-- [ ] Semua API route (`monitors/route`, `monitors/[id]/route`, `incidents/route`, `incidents/[id]/route`, `incidents/[id]/updates/route`) — wrap body parsing + DB ops dalam try/catch, return JSON error 400/500 yang proper
-- [ ] API route `monitors/[id]/route`, `incidents/[id]/route`, `incidents/[id]/updates/route` — validasi UUID format sebelum query DB
 
 ### Continuous — Accessibility & UX
 - [ ] Semua error div di form admin — tambah `role="alert"`
@@ -57,6 +55,8 @@ di akhir setiap sesi (pindahkan task dari "In Progress" ke "Done", atau ke
 - [x] Hardening `lib/ssrf.ts` — IPv6-mapped IPv4, block 0.0.0.0 (2026-08-20)
 - [x] Hardening `lib/ssrf.ts` — alternate IP encodings block (hex, octal, decimal) (2026-08-20)
 - [x] Hardening `lib/check.ts` — manual redirect following + hop validation (2026-08-20)
+- [x] Hardening: wrap body parsing and DB operations in try/catch across all 5 API routes (2026-08-20)
+- [x] Hardening: validate UUID path/body parameters in API routes (2026-08-20)
 
 ## Butuh Review Manusia
 <!-- Kilo pindahkan ke sini kalau verifier gagal 3x berturut-turut.

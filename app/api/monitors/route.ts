@@ -4,12 +4,23 @@ import { monitors } from "@/lib/db/schema";
 import { isPrivateUrl } from "@/lib/ssrf";
 
 export async function GET() {
-  const allMonitors = await db.select().from(monitors);
-  return NextResponse.json(allMonitors);
+  try {
+    const allMonitors = await db.select().from(monitors);
+    return NextResponse.json(allMonitors);
+  } catch (error) {
+    console.error("GET monitors error:", error);
+    return NextResponse.json({ error: "Internal Server Error" }, { status: 500 });
+  }
 }
 
 export async function POST(request: NextRequest) {
-  const body = await request.json();
+  let body;
+  try {
+    body = await request.json();
+  } catch {
+    return NextResponse.json({ error: "Invalid JSON body" }, { status: 400 });
+  }
+
   const { name, url, method, expectedStatus } = body;
 
   if (!name || typeof name !== "string" || name.trim().length === 0) {
@@ -34,15 +45,20 @@ export async function POST(request: NextRequest) {
       ? expectedStatus
       : 200;
 
-  const [created] = await db
-    .insert(monitors)
-    .values({
-      name: name.trim(),
-      url,
-      method: resolvedMethod,
-      expectedStatus: resolvedExpectedStatus,
-    })
-    .returning();
+  try {
+    const [created] = await db
+      .insert(monitors)
+      .values({
+        name: name.trim(),
+        url,
+        method: resolvedMethod,
+        expectedStatus: resolvedExpectedStatus,
+      })
+      .returning();
 
-  return NextResponse.json(created, { status: 201 });
+    return NextResponse.json(created, { status: 201 });
+  } catch (error) {
+    console.error("POST monitor database error:", error);
+    return NextResponse.json({ error: "Internal Server Error" }, { status: 500 });
+  }
 }
