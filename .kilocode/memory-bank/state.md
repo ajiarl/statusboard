@@ -6,9 +6,8 @@ di akhir setiap sesi (pindahkan task dari "In Progress" ke "Done", atau ke
 
 ## Next
 <!-- Tambahkan task baru di sini, satu baris per task, checklist format -->
-### Continuous — UX Improvement (Loading & Error States)
-
-### Continuous — Dokumentasi
+### Continuous — Responsive & UX Gaps
+- [ ] `app/admin/layout.tsx` — implement mobile navigation menu/drawer with toggle button in header to allow mobile users to switch pages and logout
 
 
 ## In Progress
@@ -60,6 +59,7 @@ di akhir setiap sesi (pindahkan task dari "In Progress" ke "Done", atau ke
 - [x] Hardening: wrap cron check API route database operations in try/catch to return 500 error on failures (2026-08-20)
 - [x] UX: handle loading and error states for dropdown fetch on new incident page (2026-08-20)
 - [x] Dokumentasi: update docs/IMPLEMENTATION.md progress tracker to mark Fase 1-6 as completed (2026-08-20)
+- [x] Responsive: implement mobile drawer navigation menu and header toggle button in admin layout (2026-08-20)
 
 ## Butuh Review Manusia
 <!-- Kilo pindahkan ke sini kalau verifier gagal 3x berturut-turut.
