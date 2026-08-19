@@ -212,6 +212,7 @@ export default function IncidentDetailPage({ params }: IncidentDetailPageProps) 
           <form onSubmit={handleAddUpdate} className="space-y-4">
             {error && (
               <div
+                role="alert"
                 className="rounded px-4 py-3 text-sm"
                 style={{
                   backgroundColor: "rgba(225, 29, 72, 0.1)",

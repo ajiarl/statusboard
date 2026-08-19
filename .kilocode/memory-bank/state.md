@@ -11,8 +11,6 @@ di akhir setiap sesi (pindahkan task dari "In Progress" ke "Done", atau ke
 ### Continuous — Edge Case & Error Handling
 
 ### Continuous — Accessibility & UX
-- [ ] Semua error div di form admin — tambah `role="alert"`
-- [ ] `app/admin/page.tsx` — toggle: tambah `role="switch"` + `aria-checked` + `aria-label`; delete modal: tambah `role="dialog"` + `aria-modal`
 - [ ] `app/admin/incidents/page.tsx` — action buttons: ganti `opacity-0 group-hover:opacity-100` jadi selalu visible di mobile (md:opacity-0 md:group-hover:opacity-100); hide kolom low-priority di mobile
 
 
@@ -57,6 +55,8 @@ di akhir setiap sesi (pindahkan task dari "In Progress" ke "Done", atau ke
 - [x] Hardening `lib/check.ts` — manual redirect following + hop validation (2026-08-20)
 - [x] Hardening: wrap body parsing and DB operations in try/catch across all 5 API routes (2026-08-20)
 - [x] Hardening: validate UUID path/body parameters in API routes (2026-08-20)
+- [x] Accessibility: add role="alert" to all admin form error messages (2026-08-20)
+- [x] Accessibility: add ARIA properties (role="switch", aria-checked, role="dialog") to admin page (2026-08-20)
 
 ## Butuh Review Manusia
 <!-- Kilo pindahkan ke sini kalau verifier gagal 3x berturut-turut.

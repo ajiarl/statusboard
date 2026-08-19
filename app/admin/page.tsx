@@ -148,6 +148,9 @@ export default function AdminPage() {
                       onClick={() => handleToggle(monitor)}
                       disabled={togglingId === monitor.id}
                       className="disabled:opacity-50"
+                      role="switch"
+                      aria-checked={monitor.isActive}
+                      aria-label={monitor.isActive ? "Jeda monitor" : "Aktifkan monitor"}
                       title={monitor.isActive ? "Jeda monitor" : "Aktifkan monitor"}
                     >
                       <div className={`toggle-track ${monitor.isActive ? "active" : ""}`} />
@@ -177,9 +180,9 @@ export default function AdminPage() {
       )}
 
       {deleteId && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/60">
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/60" role="dialog" aria-modal="true" aria-labelledby="delete-modal-title">
           <div className="rounded-xl border border-[#24292E] bg-[#171824] p-6 w-full max-w-sm">
-            <h2 className="text-lg font-semibold mb-2">Hapus Monitor</h2>
+            <h2 id="delete-modal-title" className="text-lg font-semibold mb-2">Hapus Monitor</h2>
             <p className="text-sm text-[#6A737D] mb-6">
               Apakah Anda yakin? Semua riwayat pengecekan terkait juga akan dihapus.
             </p>

@@ -50,6 +50,7 @@ export default function NewMonitorPage() {
         <form onSubmit={handleSubmit} className="space-y-8">
           {error && (
             <div
+              role="alert"
               className="rounded px-4 py-3 text-sm"
               style={{
                 backgroundColor: "rgba(225, 29, 72, 0.1)",
