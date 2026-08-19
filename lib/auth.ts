@@ -1,19 +1,9 @@
 import bcrypt from "bcryptjs";
 
-/**
- * Verify password against hash stored in environment variable
- *
- * Auth model: Single owner, password hash disimpan di env var OWNER_PASSWORD_HASH
- * (lihat AGENTS.md line 49-54 dan PRD §5.5)
- *
- * Tidak ada tabel users di MVP — auth sengaja single-owner untuk self-hosting
- * yang paling ringan. Multi-user/Supabase Auth ada di roadmap v2.
- */
-
 if (!process.env.OWNER_PASSWORD_HASH) {
   throw new Error(
     "OWNER_PASSWORD_HASH environment variable is not set. " +
-    "Generate one with: node -e \"require('bcryptjs').hash('your-password', 12).then(console.log)\""
+    'Generate one with: node -e "require(\'bcryptjs\').hash(\'your-password\', 12).then(console.log)"'
   );
 }
 
@@ -32,3 +22,4 @@ export async function verifyPassword(plainPassword: string): Promise<boolean> {
     return false;
   }
 }
+

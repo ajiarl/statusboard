@@ -1,0 +1,16 @@
+name: Cron Check
+
+on:
+  schedule:
+    - cron: "*/10 * * * *"
+  workflow_dispatch:
+
+jobs:
+  check:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Trigger cron check
+        run: |
+          curl -sf -X GET \
+            -H "X-Cron-Secret: ${{ secrets.X_CRON_SECRET }}" \
+            "${{ secrets.APP_URL }}/api/cron/check"

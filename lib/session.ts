@@ -14,7 +14,7 @@ if (!process.env.SESSION_SECRET || process.env.SESSION_SECRET.length < 32) {
   );
 }
 
-const sessionOptions: SessionOptions = {
+export const sessionOptions: SessionOptions = {
   password: process.env.SESSION_SECRET,
   cookieName: "statusboard_session",
   cookieOptions: {

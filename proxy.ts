@@ -1,5 +1,6 @@
 import { NextRequest, NextResponse } from "next/server";
-import { isAuthenticated } from "./lib/session";
+import { getIronSession } from "iron-session";
+import { sessionOptions, SessionData } from "./lib/session";
 
 /**
  * Next.js 16 Proxy (bukan middleware.ts — lihat AGENTS.md line 21-23)
@@ -64,8 +65,10 @@ export async function proxy(request: NextRequest) {
     return NextResponse.next();
   }
 
-  // 2. Check authentication status
-  const authenticated = await isAuthenticated();
+  // 2. Check authentication status using request and response objects for Edge runtime
+  const res = NextResponse.next();
+  const session = await getIronSession<SessionData>(request, res, sessionOptions);
+  const authenticated = session.isLoggedIn === true;
 
   if (!authenticated) {
     // 3a. Protected admin route tanpa auth → redirect ke login
@@ -86,7 +89,7 @@ export async function proxy(request: NextRequest) {
   }
 
   // 4. Authenticated, allow through
-  return NextResponse.next();
+  return res;
 }
 
 /**

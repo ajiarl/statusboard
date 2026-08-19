@@ -1,26 +1,80 @@
 @import "tailwindcss";
 
-:root {
-  --background: #ffffff;
-  --foreground: #171717;
-}
-
 @theme inline {
-  --color-background: var(--background);
-  --color-foreground: var(--foreground);
-  --font-sans: var(--font-geist-sans);
-  --font-mono: var(--font-geist-mono);
-}
-
-@media (prefers-color-scheme: dark) {
-  :root {
-    --background: #0a0a0a;
-    --foreground: #ededed;
-  }
+  --font-sans: "Inter", sans-serif;
+  --font-mono: "JetBrains Mono", monospace;
 }
 
 body {
-  background: var(--background);
-  color: var(--foreground);
-  font-family: Arial, Helvetica, sans-serif;
+  background-color: #0F0F0F;
+  color: #e5e2e1;
+  font-family: "Inter", sans-serif;
+}
+
+.font-data-mono {
+  font-family: "JetBrains Mono", monospace;
+  font-weight: 500;
+  font-size: 14px;
+  line-height: 20px;
+}
+
+.input-inset {
+  background-color: #0F0F0F;
+  border: 1px solid #24292E;
+}
+.input-inset:focus {
+  border-color: #606AF0;
+  box-shadow: none;
+  outline: none;
+}
+
+.card-level-1 {
+  background-color: #171824;
+  border: 1px solid #24292E;
+}
+
+.btn-primary {
+  background-color: #606AF0;
+  color: white;
+  border-radius: 4px;
+}
+.btn-primary:hover {
+  opacity: 0.9;
+}
+
+.btn-ghost {
+  background-color: transparent;
+  border: 1px solid #24292E;
+  color: white;
+  border-radius: 4px;
+}
+.btn-ghost:hover {
+  background-color: #353534;
+}
+
+.toggle-track {
+  width: 36px;
+  height: 20px;
+  background-color: #353534;
+  border-radius: 9999px;
+  position: relative;
+  cursor: pointer;
+  transition: background-color 0.2s ease-in-out;
+}
+.toggle-track.active {
+  background-color: #606AF0;
+}
+.toggle-track::after {
+  content: "";
+  position: absolute;
+  top: 2px;
+  left: 2px;
+  width: 16px;
+  height: 16px;
+  background-color: white;
+  border-radius: 50%;
+  transition: transform 0.2s ease-in-out;
+}
+.toggle-track.active::after {
+  transform: translateX(16px);
 }
