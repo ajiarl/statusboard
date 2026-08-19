@@ -9,7 +9,6 @@ di akhir setiap sesi (pindahkan task dari "In Progress" ke "Done", atau ke
 ### Continuous — UX Improvement (Loading & Error States)
 
 ### Continuous — Dokumentasi
-- [ ] `docs/IMPLEMENTATION.md` — update progress tracker to mark completed phases (Fase 1-6)
 
 
 ## In Progress
@@ -60,6 +59,7 @@ di akhir setiap sesi (pindahkan task dari "In Progress" ke "Done", atau ke
 - [x] UX: handle mount fetch failures by displaying error banner with retry/back actions in admin monitors/incidents pages (2026-08-20)
 - [x] Hardening: wrap cron check API route database operations in try/catch to return 500 error on failures (2026-08-20)
 - [x] UX: handle loading and error states for dropdown fetch on new incident page (2026-08-20)
+- [x] Dokumentasi: update docs/IMPLEMENTATION.md progress tracker to mark Fase 1-6 as completed (2026-08-20)
 
 ## Butuh Review Manusia
 <!-- Kilo pindahkan ke sini kalau verifier gagal 3x berturut-turut.

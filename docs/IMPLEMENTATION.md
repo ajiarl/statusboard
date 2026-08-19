@@ -16,12 +16,12 @@ Version 1.0 | Mengikuti PRD v1.1
 
 ```
 ✅ Fase 0 — Foundation (scaffold + schema + DB)
-🔲 Fase 1 — Auth (login/logout + proxy)
-🔲 Fase 2 — Cron Check Engine (/api/cron/check)
-🔲 Fase 3 — Monitor CRUD API + Admin UI
-🔲 Fase 4 — Public Status Page (/)
-🔲 Fase 5 — Incident Management API + Admin UI
-🔲 Fase 6 — GitHub Actions (cron + keep-alive)
+✅ Fase 1 — Auth (login/logout + proxy)
+✅ Fase 2 — Cron Check Engine (/api/cron/check)
+✅ Fase 3 — Monitor CRUD API + Admin UI
+✅ Fase 4 — Public Status Page (/)
+✅ Fase 5 — Incident Management API + Admin UI
+✅ Fase 6 — GitHub Actions (cron + keep-alive)
 🔲 Fase 7 — Vercel Deployment + Env Setup
 ```
 
