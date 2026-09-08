@@ -102,7 +102,8 @@ export async function GET(request: NextRequest) {
         : { error: String((r as PromiseRejectedResult).reason) }
     );
 
-    const cutoff = new Date(Date.now() - 45 * 24 * 60 * 60 * 1000);
+    // Retain 90 days of telemetry history + 5-day safety buffer for 90-day aggregation view
+    const cutoff = new Date(Date.now() - 95 * 24 * 60 * 60 * 1000);
     await db.delete(checks).where(lt(checks.checkedAt, cutoff));
 
     return NextResponse.json({ checked: activeMonitors.length, results: summary });

@@ -33,8 +33,21 @@ const BLOCKED_HOSTNAMES = [
 ];
 
 function normalizeIP(raw: string): string | null {
-  const mapped = raw.match(IPV6_MAPPED_IPV4);
-  if (mapped) return mapped[1];
+  const m = raw.match(/^::ffff:([0-9a-f:.]+)$/i);
+  if (!m) return null;
+  const rest = m[1];
+  if (rest.includes(".")) {
+    const quad = rest.match(/^(\d{1,3}\.\d{1,3}\.\d{1,3}\.\d{1,3})$/);
+    return quad ? quad[1] : null;
+  }
+  const parts = rest.split(":");
+  if (parts.length === 2) {
+    const high = parseInt(parts[0], 16);
+    const low = parseInt(parts[1], 16);
+    if (!isNaN(high) && !isNaN(low)) {
+      return `${(high >> 8) & 0xff}.${high & 0xff}.${(low >> 8) & 0xff}.${low & 0xff}`;
+    }
+  }
   return null;
 }
 
