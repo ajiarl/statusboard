@@ -1,13 +1,17 @@
+import Link from "next/link";
 import { db } from "@/lib/db";
 import { monitors, incidents, incidentUpdates } from "@/lib/db/schema";
 import { eq, desc, isNull, isNotNull } from "drizzle-orm";
 import { calculateUptime } from "@/lib/uptime";
 import type {
   DailyHeartbeat,
-  MonitorWithUptime,
   MonitorWithHeartbeat,
   IncidentWithUpdates,
+  OverallSystemStatus,
 } from "@/lib/types/status";
+import { StatusHeroBanner } from "@/components/StatusHeroBanner";
+import { MonitorCard } from "@/components/MonitorCard";
+import { Activity, ShieldAlert, CheckCircle2 } from "lucide-react";
 
 function generateMockHeartbeats(
   type: "healthy" | "intermittent" | "degraded_today"
@@ -84,6 +88,7 @@ async function getStatusData() {
       activeMonitors.map(async (m) => ({
         id: m.id,
         name: m.name,
+        url: m.url ?? undefined,
         currentStatus: m.currentStatus,
         uptime24h: await calculateUptime(m.id, 24),
         uptime7d: await calculateUptime(m.id, 168),
@@ -197,7 +202,11 @@ async function getStatusData() {
         resolvedAt: null,
         monitorName: "Auth Service",
         updates: [
-          { status: "investigating", message: "We are investigating elevated 5xx error rates on the Auth Service.", createdAt: fiveHoursAgo },
+          {
+            status: "investigating",
+            message: "Kami sedang menginvestigasi peningkatan respon error 5xx pada Auth Service.",
+            createdAt: fiveHoursAgo,
+          },
         ],
       },
     ];
@@ -211,7 +220,13 @@ async function getStatusData() {
         createdAt: twoDaysAgo,
         resolvedAt: new Date(twoDaysAgo.getTime() + 45 * 60 * 1000),
         monitorName: "API Server",
-        updates: [],
+        updates: [
+          {
+            status: "resolved",
+            message: "Pemeliharaan indeks database selesai. Latensi kembali normal.",
+            createdAt: new Date(twoDaysAgo.getTime() + 45 * 60 * 1000),
+          },
+        ],
       },
     ];
 
@@ -223,7 +238,7 @@ async function getStatusData() {
   }
 }
 
-function getOverallStatus(monitorsList: MonitorWithUptime[]) {
+function getOverallStatus(monitorsList: MonitorWithHeartbeat[]): OverallSystemStatus {
   if (monitorsList.length === 0) return "unknown";
   const hasDown = monitorsList.some((m) => m.currentStatus === "down");
   if (hasDown) return "down";
@@ -232,31 +247,14 @@ function getOverallStatus(monitorsList: MonitorWithUptime[]) {
   return "degraded";
 }
 
-const bannerConfig: Record<string, { bg: string; border: string; text: string; label: string }> = {
-  up: { bg: "bg-[#1A2E20]", border: "border-[#28A745]/30", text: "text-[#28A745]", label: "Semua Sistem Berjalan Lancar" },
-  degraded: { bg: "bg-[#2E2A1A]", border: "border-[#FFBF00]/30", text: "text-[#FFBF00]", label: "Sebagian Sistem Terdegradasi" },
-  down: { bg: "bg-[#2E1A1A]", border: "border-[#E11D48]/30", text: "text-[#E11D48]", label: "Gangguan Sistem Utama" },
-  unknown: { bg: "bg-[#1c1b1b]", border: "border-[#353534]", text: "text-[#6A737D]", label: "Belum Ada Monitor Dikonfigurasi" },
-};
-
-const statusChip: Record<string, { bg: string; border: string; text: string; label: string }> = {
-  up: { bg: "bg-[#28A745]/10", border: "border-[#28A745]/20", text: "text-[#28A745]", label: "Operasional" },
-  down: { bg: "bg-[#E11D48]/10", border: "border-[#E11D48]/20", text: "text-[#E11D48]", label: "Turun" },
-  unknown: { bg: "bg-[#353534]", border: "border-[#454654]", text: "text-[#c6c5d7]", label: "Tidak Diketahui" },
-};
-
 function formatDate(d: Date) {
   return new Intl.DateTimeFormat("id-ID", {
     day: "numeric",
     month: "short",
     year: "numeric",
+    hour: "2-digit",
+    minute: "2-digit",
   }).format(new Date(d));
-}
-
-function uptimeColor(pct: number) {
-  if (pct >= 99.9) return "text-[#28A745]";
-  if (pct >= 99) return "text-[#FFBF00]";
-  return "text-[#E11D48]";
 }
 
 export const dynamic = "force-dynamic";
@@ -264,95 +262,118 @@ export const dynamic = "force-dynamic";
 export default async function StatusPage() {
   const { monitors: monitorsList, activeIncidents, resolvedIncidents } =
     await getStatusData();
+
   const overall = getOverallStatus(monitorsList);
-  const banner = bannerConfig[overall];
+  const downMonitors = monitorsList.filter((m) => m.currentStatus === "down");
+  const degradedMonitors = monitorsList.filter((m) => m.currentStatus === "degraded");
+  const downServiceName = downMonitors.length > 0 ? downMonitors[0].name : null;
 
   return (
-    <div className="min-h-screen bg-[#0e0e0e] text-[#e5e2e1] flex flex-col">
-      <header className="border-b border-[#24292E] bg-[#131313]">
-        <div className="flex justify-between items-center w-full px-6 max-w-[1200px] mx-auto h-16">
-          <span className="text-2xl font-semibold text-[#e5e2e1]">StatusBoard</span>
-          <nav className="hidden md:flex items-center gap-8">
-            <span className="text-[#bec2ff] font-bold border-b-2 border-[#bec2ff] pb-1">Dashboard</span>
+    <div className="min-h-screen bg-[#09090b] text-zinc-100 flex flex-col font-sans selection:bg-emerald-500/20 selection:text-emerald-300">
+      {/* Top Navigation Bar */}
+      <header className="border-b border-zinc-800/80 bg-[#09090b]/80 backdrop-blur-md sticky top-0 z-40">
+        <div className="flex justify-between items-center w-full px-4 sm:px-6 max-w-5xl mx-auto h-16">
+          <Link href="/" className="flex items-center gap-2.5 group">
+            <div className="w-8 h-8 rounded-lg bg-zinc-900 border border-zinc-800 flex items-center justify-center text-emerald-400 group-hover:border-emerald-500/40 transition-colors">
+              <Activity className="w-4 h-4" />
+            </div>
+            <div className="flex items-center gap-2">
+              <span className="font-bold text-lg tracking-tight text-zinc-100">
+                StatusBoard
+              </span>
+              <span className="flex items-center gap-1.5 px-2 py-0.5 rounded-full text-[11px] font-medium bg-emerald-500/10 text-emerald-400 border border-emerald-500/20">
+                <span className="w-1.5 h-1.5 rounded-full bg-emerald-400 animate-pulse" />
+                Live
+              </span>
+            </div>
+          </Link>
+
+          <nav className="flex items-center gap-4">
+            <Link
+              href="/admin"
+              className="text-xs font-medium text-zinc-400 hover:text-zinc-100 px-3 py-1.5 rounded-lg border border-transparent hover:border-zinc-800 hover:bg-zinc-900/60 transition-all"
+            >
+              Admin Portal
+            </Link>
           </nav>
         </div>
       </header>
 
-      <main className="flex-grow w-full max-w-[1200px] mx-auto px-6 py-8 flex flex-col gap-8">
-        <div className={`w-full ${banner.bg} border ${banner.border} rounded-lg p-4 flex items-center justify-center gap-3`}>
-          <span className={`text-xl font-semibold ${banner.text}`}>{banner.label}</span>
-        </div>
+      {/* Main Content Area (max-w-5xl, mx-auto, px-4) */}
+      <main className="flex-grow w-full max-w-5xl mx-auto px-4 sm:px-6 py-8 md:py-10 flex flex-col gap-8">
+        {/* Dynamic Status Hero Banner */}
+        <StatusHeroBanner
+          status={overall}
+          totalMonitors={monitorsList.length}
+          downMonitorsCount={downMonitors.length}
+          degradedMonitorsCount={degradedMonitors.length}
+          downServiceName={downServiceName}
+        />
 
-        {monitorsList.length > 0 && (
-          <section className="flex flex-col gap-4">
-            {monitorsList.map((m) => {
-              const chip = statusChip[m.currentStatus] || statusChip.unknown;
-              return (
-                <div
-                  key={m.id}
-                  className="bg-[#131313] border border-[#24292E] rounded-xl p-6 hover:bg-[#2a2a2a] transition-colors flex flex-col gap-2"
-                >
-                  <div className="flex justify-between items-center mb-2">
-                    <h2 className="text-2xl font-semibold text-[#e5e2e1]">{m.name}</h2>
-                    <div className={`flex items-center gap-2 ${chip.bg} border ${chip.border} px-3 py-1 rounded-full`}>
-                      <div className={`w-2 h-2 rounded-full ${m.currentStatus === "up" ? "bg-[#28A745]" : m.currentStatus === "down" ? "bg-[#E11D48]" : "bg-[#6A737D]"}`} />
-                      <span className={`text-xs font-semibold uppercase tracking-[0.05em] ${chip.text}`}>{chip.label}</span>
-                    </div>
-                  </div>
-
-                  <div className="flex flex-wrap gap-3 mb-2">
-                    <div className="bg-[#201f1f] border border-[#24292E] rounded px-2 py-1 flex items-center gap-2">
-                      <span className="text-xs font-semibold uppercase tracking-[0.05em] text-[#6A737D]">24j</span>
-                      <span className={`font-data-mono ${uptimeColor(m.uptime24h)}`}>{m.uptime24h}%</span>
-                    </div>
-                    <div className="bg-[#201f1f] border border-[#24292E] rounded px-2 py-1 flex items-center gap-2">
-                      <span className="text-xs font-semibold uppercase tracking-[0.05em] text-[#6A737D]">7h</span>
-                      <span className={`font-data-mono ${uptimeColor(m.uptime7d)}`}>{m.uptime7d}%</span>
-                    </div>
-                    <div className="bg-[#201f1f] border border-[#24292E] rounded px-2 py-1 flex items-center gap-2">
-                      <span className="text-xs font-semibold uppercase tracking-[0.05em] text-[#6A737D]">30h</span>
-                      <span className={`font-data-mono ${uptimeColor(m.uptime30d)}`}>{m.uptime30d}%</span>
-                    </div>
-                  </div>
-                </div>
-              );
-            })}
-          </section>
-        )}
-
-        <section className="mt-4">
-          <h3 className="text-3xl font-bold text-[#e5e2e1] mb-4">Insiden Aktif</h3>
-          {activeIncidents.length === 0 ? (
-            <div className="bg-[#201f1f] border border-dashed border-[#24292E] rounded-lg p-4 flex items-center justify-center">
-              <p className="text-base text-[#6A737D]">Tidak ada insiden aktif saat ini.</p>
+        {/* Active Incidents Section */}
+        {activeIncidents.length > 0 && (
+          <section className="flex flex-col gap-3">
+            <div className="flex items-center gap-2">
+              <ShieldAlert className="w-5 h-5 text-rose-400" />
+              <h2 className="text-lg font-bold tracking-tight text-zinc-100">
+                Insiden Aktif
+              </h2>
+              <span className="text-xs font-mono px-2 py-0.5 rounded-full bg-rose-500/10 text-rose-400 border border-rose-500/20">
+                {activeIncidents.length}
+              </span>
             </div>
-          ) : (
+
             <div className="space-y-4">
               {activeIncidents.map((inc) => (
-                <div key={inc.id} className="bg-[#131313] border border-[#24292E] rounded-xl p-6">
-                  <div className="flex items-center gap-3 mb-2">
-                    <h4 className="text-lg font-semibold text-[#e5e2e1]">{inc.title}</h4>
-                    <span className={`text-xs font-semibold uppercase px-2 py-0.5 rounded ${
-                      inc.severity === "critical" ? "bg-[#E11D48]/10 text-[#E11D48]" :
-                      inc.severity === "major" ? "bg-orange-500/10 text-orange-500" :
-                      "bg-[#FFBF00]/10 text-[#FFBF00]"
-                    }`}>
-                      {inc.severity}
-                    </span>
+                <div
+                  key={inc.id}
+                  className="bg-[#121215] border border-rose-500/30 rounded-2xl p-5 md:p-6 shadow-sm flex flex-col gap-4"
+                >
+                  <div className="flex flex-wrap items-start justify-between gap-3">
+                    <div>
+                      <div className="flex items-center gap-2.5 mb-1.5">
+                        <h3 className="text-base md:text-lg font-semibold text-zinc-100">
+                          {inc.title}
+                        </h3>
+                        <span
+                          className={`text-[11px] font-mono font-semibold uppercase px-2 py-0.5 rounded-full ${
+                            inc.severity === "critical"
+                              ? "bg-rose-500/10 text-rose-400 border border-rose-500/30"
+                              : inc.severity === "major"
+                              ? "bg-amber-500/10 text-amber-400 border border-amber-500/30"
+                              : "bg-zinc-800 text-zinc-300 border border-zinc-700"
+                          }`}
+                        >
+                          {inc.severity}
+                        </span>
+                      </div>
+                      {inc.monitorName && (
+                        <p className="text-xs text-zinc-400">
+                          Layanan terkait:{" "}
+                          <span className="text-zinc-200 font-medium">
+                            {inc.monitorName}
+                          </span>
+                        </p>
+                      )}
+                    </div>
+                    <div className="text-xs font-mono text-zinc-500">
+                      Dibuka {formatDate(inc.createdAt)}
+                    </div>
                   </div>
-                  {inc.monitorName && (
-                    <p className="text-sm text-[#6A737D] mb-2">Terkait: {inc.monitorName}</p>
-                  )}
-                  <p className="text-sm text-[#6A737D] mb-3">
-                    Dibuka {formatDate(inc.createdAt)} · Status: {inc.status}
-                  </p>
+
                   {inc.updates.length > 0 && (
-                    <div className="border-l border-[#24292E] ml-3 pl-6 space-y-3">
+                    <div className="border-l-2 border-zinc-800 ml-2 pl-4 space-y-3 pt-1">
                       {inc.updates.map((u, i) => (
                         <div key={i} className="relative">
-                          <div className="absolute -left-[28px] top-1 w-3 h-3 bg-[#FFBF00] rounded-full ring-4 ring-[#131313]" />
-                          <time className="font-data-mono text-sm text-[#6A737D]">{formatDate(u.createdAt)} · {u.status}</time>
-                          <p className="text-base text-[#c6c5d7] mt-1">{u.message}</p>
+                          <div className="absolute -left-[21px] top-1.5 w-2 h-2 rounded-full bg-amber-400 ring-4 ring-[#121215]" />
+                          <div className="flex items-center gap-2 text-xs font-mono text-zinc-400">
+                            <span>{formatDate(u.createdAt)}</span>
+                            <span>·</span>
+                            <span className="uppercase text-amber-400 font-medium">
+                              {u.status}
+                            </span>
+                          </div>
+                          <p className="text-sm text-zinc-300 mt-1">{u.message}</p>
                         </div>
                       ))}
                     </div>
@@ -360,26 +381,68 @@ export default async function StatusPage() {
                 </div>
               ))}
             </div>
+          </section>
+        )}
+
+        {/* Monitors / Services List */}
+        <section className="flex flex-col gap-4">
+          <div className="flex items-center justify-between">
+            <h2 className="text-lg font-bold tracking-tight text-zinc-100">
+              Layanan Sistem
+            </h2>
+            <span className="text-xs font-mono text-zinc-500">
+              {monitorsList.length} total layanan
+            </span>
+          </div>
+
+          {monitorsList.length === 0 ? (
+            <div className="bg-[#121215] border border-dashed border-zinc-800 rounded-2xl p-8 text-center">
+              <p className="text-sm text-zinc-500">
+                Belum ada monitor yang aktif saat ini.
+              </p>
+            </div>
+          ) : (
+            <div className="flex flex-col gap-4">
+              {monitorsList.map((m) => (
+                <MonitorCard key={m.id} monitor={m} />
+              ))}
+            </div>
           )}
         </section>
 
-        {resolvedIncidents.length > 0 && (
-          <section className="mt-4">
-            <h3 className="text-3xl font-bold text-[#e5e2e1] mb-4">Riwayat Insiden</h3>
-            <div className="relative border-l border-[#24292E] ml-3 pl-6 pb-4 flex flex-col gap-4">
+        {/* Resolved Incidents History */}
+        <section className="flex flex-col gap-3 pt-4 border-t border-zinc-800/80">
+          <div className="flex items-center justify-between">
+            <h2 className="text-lg font-bold tracking-tight text-zinc-100">
+              Riwayat Insiden
+            </h2>
+            <span className="text-xs text-zinc-500">90 hari terakhir</span>
+          </div>
+
+          {resolvedIncidents.length === 0 ? (
+            <div className="bg-[#121215] border border-zinc-800/70 rounded-2xl p-6 flex items-center justify-center gap-2.5 text-zinc-400 text-sm">
+              <CheckCircle2 className="w-4 h-4 text-emerald-400 shrink-0" />
+              <span>Tidak ada insiden tercatat dalam 90 hari terakhir.</span>
+            </div>
+          ) : (
+            <div className="relative border-l-2 border-zinc-800 ml-3 pl-5 space-y-4 py-2">
               {resolvedIncidents.map((inc) => (
-                <div key={inc.id} className="relative">
-                  <div className="absolute -left-[28px] top-1 w-3 h-3 bg-[#28A745] rounded-full ring-4 ring-[#0e0e0e]" />
+                <div key={inc.id} className="relative group">
+                  <div className="absolute -left-[25px] top-1 w-2.5 h-2.5 rounded-full bg-emerald-500 ring-4 ring-[#09090b]" />
                   <div className="flex flex-col gap-1">
-                    <div className="flex items-center gap-3">
-                      <h4 className="text-lg font-semibold text-[#e5e2e1]">{inc.title}</h4>
-                      <span className="text-[10px] font-semibold uppercase tracking-[0.05em] bg-[#201f1f] px-2 py-0.5 rounded text-[#6A737D]">
+                    <div className="flex items-center gap-2.5">
+                      <h4 className="text-sm md:text-base font-semibold text-zinc-200">
+                        {inc.title}
+                      </h4>
+                      <span className="text-[10px] font-mono uppercase tracking-wider bg-emerald-500/10 text-emerald-400 border border-emerald-500/20 px-2 py-0.5 rounded-full">
                         Terselesaikan
                       </span>
                     </div>
-                    <time className="font-data-mono text-sm text-[#6A737D]">{formatDate(inc.createdAt)}</time>
+                    <time className="font-mono text-xs text-zinc-500">
+                      {formatDate(inc.createdAt)}
+                    </time>
                     {inc.updates.length > 0 && (
-                      <p className="text-base text-[#c6c5d7] mt-2 max-w-2xl">
+                      <p className="text-sm text-zinc-400 mt-1 max-w-2xl">
                         {inc.updates[0].message}
                       </p>
                     )}
@@ -387,14 +450,29 @@ export default async function StatusPage() {
                 </div>
               ))}
             </div>
-          </section>
-        )}
+          )}
+        </section>
       </main>
 
-      <footer className="border-t border-[#24292E] bg-[#0e0e0e] mt-auto">
-        <div className="w-full py-8 px-6 max-w-[1200px] mx-auto flex flex-col md:flex-row justify-between items-center gap-4">
-          <div className="text-sm text-[#6A737D]">
-            &copy; {new Date().getFullYear()} StatusBoard. All systems monitored.
+      {/* Global Footer */}
+      <footer className="border-t border-zinc-800/80 bg-[#09090b] mt-auto">
+        <div className="w-full py-8 px-4 sm:px-6 max-w-5xl mx-auto flex flex-col sm:flex-row justify-between items-center gap-4 text-xs text-zinc-500">
+          <div>
+            Powered by{" "}
+            <span className="text-zinc-300 font-medium">StatusBoard</span> ·
+            Self-hosted & Open Source
+          </div>
+          <div className="flex items-center gap-4 font-mono">
+            <span>Pemeriksaan setiap 5 menit</span>
+            <span>·</span>
+            <Link
+              href="https://github.com/ajiarl/statusboard"
+              target="_blank"
+              rel="noopener noreferrer"
+              className="text-zinc-400 hover:text-zinc-200 transition-colors underline underline-offset-4"
+            >
+              GitHub
+            </Link>
           </div>
         </div>
       </footer>
