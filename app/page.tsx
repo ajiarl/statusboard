@@ -1,4 +1,3 @@
-import Link from "next/link";
 import { db } from "@/lib/db";
 import { monitors, incidents, incidentUpdates } from "@/lib/db/schema";
 import { eq, desc, isNull, isNotNull } from "drizzle-orm";
@@ -9,9 +8,13 @@ import type {
   IncidentWithUpdates,
   OverallSystemStatus,
 } from "@/lib/types/status";
+import { StatusHeader } from "@/components/StatusHeader";
 import { StatusHeroBanner } from "@/components/StatusHeroBanner";
+import { ActiveIncidentCard } from "@/components/ActiveIncidentCard";
 import { MonitorCard } from "@/components/MonitorCard";
-import { Activity, ShieldAlert, CheckCircle2 } from "lucide-react";
+import { IncidentHistory } from "@/components/IncidentHistory";
+import { StatusFooter } from "@/components/StatusFooter";
+import { ShieldAlert } from "lucide-react";
 
 function generateMockHeartbeats(
   type: "healthy" | "intermittent" | "degraded_today"
@@ -151,7 +154,7 @@ async function getStatusData() {
       resolvedIncidents: incidentsWithUpdates.filter((i) => i.resolvedAt),
     };
   } catch {
-    // TODO: hapus mock fallback ini setelah ganti ke akun Supabase yang benar
+    // Fallback mock data bila database offline/belum terhubung
     const now = new Date();
     const twoDaysAgo = new Date(now.getTime() - 2 * 24 * 60 * 60 * 1000);
     const fiveHoursAgo = new Date(now.getTime() - 5 * 60 * 60 * 1000);
@@ -247,16 +250,6 @@ function getOverallStatus(monitorsList: MonitorWithHeartbeat[]): OverallSystemSt
   return "degraded";
 }
 
-function formatDate(d: Date) {
-  return new Intl.DateTimeFormat("id-ID", {
-    day: "numeric",
-    month: "short",
-    year: "numeric",
-    hour: "2-digit",
-    minute: "2-digit",
-  }).format(new Date(d));
-}
-
 export const dynamic = "force-dynamic";
 
 export default async function StatusPage() {
@@ -270,36 +263,10 @@ export default async function StatusPage() {
 
   return (
     <div className="min-h-screen bg-[#09090b] text-zinc-100 flex flex-col font-sans selection:bg-emerald-500/20 selection:text-emerald-300">
-      {/* Top Navigation Bar */}
-      <header className="border-b border-zinc-800/80 bg-[#09090b]/80 backdrop-blur-md sticky top-0 z-40">
-        <div className="flex justify-between items-center w-full px-4 sm:px-6 max-w-5xl mx-auto h-16">
-          <Link href="/" className="flex items-center gap-2.5 group">
-            <div className="w-8 h-8 rounded-lg bg-zinc-900 border border-zinc-800 flex items-center justify-center text-emerald-400 group-hover:border-emerald-500/40 transition-colors">
-              <Activity className="w-4 h-4" />
-            </div>
-            <div className="flex items-center gap-2">
-              <span className="font-bold text-lg tracking-tight text-zinc-100">
-                StatusBoard
-              </span>
-              <span className="flex items-center gap-1.5 px-2 py-0.5 rounded-full text-[11px] font-medium bg-emerald-500/10 text-emerald-400 border border-emerald-500/20">
-                <span className="w-1.5 h-1.5 rounded-full bg-emerald-400 animate-pulse" />
-                Live
-              </span>
-            </div>
-          </Link>
+      {/* 1. Global Navigation Header */}
+      <StatusHeader updatedAtText="Updated recently" />
 
-          <nav className="flex items-center gap-4">
-            <Link
-              href="/admin"
-              className="text-xs font-medium text-zinc-400 hover:text-zinc-100 px-3 py-1.5 rounded-lg border border-transparent hover:border-zinc-800 hover:bg-zinc-900/60 transition-all"
-            >
-              Admin Portal
-            </Link>
-          </nav>
-        </div>
-      </header>
-
-      {/* Main Content Area (max-w-5xl, mx-auto, px-4) */}
+      {/* 2. Main Content Area */}
       <main className="flex-grow w-full max-w-5xl mx-auto px-4 sm:px-6 py-8 md:py-10 flex flex-col gap-8">
         {/* Dynamic Status Hero Banner */}
         <StatusHeroBanner
@@ -325,60 +292,7 @@ export default async function StatusPage() {
 
             <div className="space-y-4">
               {activeIncidents.map((inc) => (
-                <div
-                  key={inc.id}
-                  className="bg-[#121215] border border-rose-500/30 rounded-2xl p-5 md:p-6 shadow-sm flex flex-col gap-4"
-                >
-                  <div className="flex flex-wrap items-start justify-between gap-3">
-                    <div>
-                      <div className="flex items-center gap-2.5 mb-1.5">
-                        <h3 className="text-base md:text-lg font-semibold text-zinc-100">
-                          {inc.title}
-                        </h3>
-                        <span
-                          className={`text-[11px] font-mono font-semibold uppercase px-2 py-0.5 rounded-full ${
-                            inc.severity === "critical"
-                              ? "bg-rose-500/10 text-rose-400 border border-rose-500/30"
-                              : inc.severity === "major"
-                              ? "bg-amber-500/10 text-amber-400 border border-amber-500/30"
-                              : "bg-zinc-800 text-zinc-300 border border-zinc-700"
-                          }`}
-                        >
-                          {inc.severity}
-                        </span>
-                      </div>
-                      {inc.monitorName && (
-                        <p className="text-xs text-zinc-400">
-                          Layanan terkait:{" "}
-                          <span className="text-zinc-200 font-medium">
-                            {inc.monitorName}
-                          </span>
-                        </p>
-                      )}
-                    </div>
-                    <div className="text-xs font-mono text-zinc-500">
-                      Dibuka {formatDate(inc.createdAt)}
-                    </div>
-                  </div>
-
-                  {inc.updates.length > 0 && (
-                    <div className="border-l-2 border-zinc-800 ml-2 pl-4 space-y-3 pt-1">
-                      {inc.updates.map((u, i) => (
-                        <div key={i} className="relative">
-                          <div className="absolute -left-[21px] top-1.5 w-2 h-2 rounded-full bg-amber-400 ring-4 ring-[#121215]" />
-                          <div className="flex items-center gap-2 text-xs font-mono text-zinc-400">
-                            <span>{formatDate(u.createdAt)}</span>
-                            <span>·</span>
-                            <span className="uppercase text-amber-400 font-medium">
-                              {u.status}
-                            </span>
-                          </div>
-                          <p className="text-sm text-zinc-300 mt-1">{u.message}</p>
-                        </div>
-                      ))}
-                    </div>
-                  )}
-                </div>
+                <ActiveIncidentCard key={inc.id} incident={inc} />
               ))}
             </div>
           </section>
@@ -411,71 +325,11 @@ export default async function StatusPage() {
         </section>
 
         {/* Resolved Incidents History */}
-        <section className="flex flex-col gap-3 pt-4 border-t border-zinc-800/80">
-          <div className="flex items-center justify-between">
-            <h2 className="text-lg font-bold tracking-tight text-zinc-100">
-              Riwayat Insiden
-            </h2>
-            <span className="text-xs text-zinc-500">90 hari terakhir</span>
-          </div>
-
-          {resolvedIncidents.length === 0 ? (
-            <div className="bg-[#121215] border border-zinc-800/70 rounded-2xl p-6 flex items-center justify-center gap-2.5 text-zinc-400 text-sm">
-              <CheckCircle2 className="w-4 h-4 text-emerald-400 shrink-0" />
-              <span>Tidak ada insiden tercatat dalam 90 hari terakhir.</span>
-            </div>
-          ) : (
-            <div className="relative border-l-2 border-zinc-800 ml-3 pl-5 space-y-4 py-2">
-              {resolvedIncidents.map((inc) => (
-                <div key={inc.id} className="relative group">
-                  <div className="absolute -left-[25px] top-1 w-2.5 h-2.5 rounded-full bg-emerald-500 ring-4 ring-[#09090b]" />
-                  <div className="flex flex-col gap-1">
-                    <div className="flex items-center gap-2.5">
-                      <h4 className="text-sm md:text-base font-semibold text-zinc-200">
-                        {inc.title}
-                      </h4>
-                      <span className="text-[10px] font-mono uppercase tracking-wider bg-emerald-500/10 text-emerald-400 border border-emerald-500/20 px-2 py-0.5 rounded-full">
-                        Terselesaikan
-                      </span>
-                    </div>
-                    <time className="font-mono text-xs text-zinc-500">
-                      {formatDate(inc.createdAt)}
-                    </time>
-                    {inc.updates.length > 0 && (
-                      <p className="text-sm text-zinc-400 mt-1 max-w-2xl">
-                        {inc.updates[0].message}
-                      </p>
-                    )}
-                  </div>
-                </div>
-              ))}
-            </div>
-          )}
-        </section>
+        <IncidentHistory incidents={resolvedIncidents} />
       </main>
 
-      {/* Global Footer */}
-      <footer className="border-t border-zinc-800/80 bg-[#09090b] mt-auto">
-        <div className="w-full py-8 px-4 sm:px-6 max-w-5xl mx-auto flex flex-col sm:flex-row justify-between items-center gap-4 text-xs text-zinc-500">
-          <div>
-            Powered by{" "}
-            <span className="text-zinc-300 font-medium">StatusBoard</span> ·
-            Self-hosted & Open Source
-          </div>
-          <div className="flex items-center gap-4 font-mono">
-            <span>Pemeriksaan setiap 5 menit</span>
-            <span>·</span>
-            <Link
-              href="https://github.com/ajiarl/statusboard"
-              target="_blank"
-              rel="noopener noreferrer"
-              className="text-zinc-400 hover:text-zinc-200 transition-colors underline underline-offset-4"
-            >
-              GitHub
-            </Link>
-          </div>
-        </div>
-      </footer>
+      {/* 3. Global Footer */}
+      <StatusFooter />
     </div>
   );
 }
