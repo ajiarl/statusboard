@@ -1,7 +1,17 @@
 "use client";
 
 import { useState, useEffect, useCallback, FormEvent, use } from "react";
-import { useRouter } from "next/navigation";
+import Link from "next/link";
+import {
+  ArrowLeft,
+  CheckCircle2,
+  AlertCircle,
+  ChevronDown,
+  Loader2,
+  Clock,
+  RefreshCw,
+  Send,
+} from "lucide-react";
 
 interface Incident {
   id: string;
@@ -19,11 +29,62 @@ interface IncidentUpdate {
   createdAt: string;
 }
 
-const statusChip: Record<string, { bg: string; border: string; text: string; label: string }> = {
-  investigating: { bg: "bg-[#FFBF00]/10", border: "border-[#FFBF00]/20", text: "text-[#FFBF00]", label: "Diselidiki" },
-  identified: { bg: "bg-orange-500/10", border: "border-orange-500/20", text: "text-orange-500", label: "Teridentifikasi" },
-  monitoring: { bg: "bg-[#FFBF00]/10", border: "border-[#FFBF00]/20", text: "text-[#FFBF00]", label: "Dipantau" },
-  resolved: { bg: "bg-[#28A745]/10", border: "border-[#28A745]/20", text: "text-[#28A745]", label: "Terselesaikan" },
+const severityChip: Record<
+  string,
+  { bg: string; border: string; text: string; label: string }
+> = {
+  minor: {
+    bg: "bg-amber-500/10",
+    border: "border-amber-500/20",
+    text: "text-amber-400",
+    label: "Minor",
+  },
+  major: {
+    bg: "bg-orange-500/10",
+    border: "border-orange-500/20",
+    text: "text-orange-400",
+    label: "Mayor",
+  },
+  critical: {
+    bg: "bg-rose-500/10",
+    border: "border-rose-500/20",
+    text: "text-rose-400",
+    label: "Kritis",
+  },
+};
+
+const statusChip: Record<
+  string,
+  { bg: string; border: string; text: string; label: string; dot: string }
+> = {
+  investigating: {
+    bg: "bg-amber-500/10",
+    border: "border-amber-500/20",
+    text: "text-amber-400",
+    label: "Diselidiki",
+    dot: "bg-amber-500",
+  },
+  identified: {
+    bg: "bg-orange-500/10",
+    border: "border-orange-500/20",
+    text: "text-orange-400",
+    label: "Teridentifikasi",
+    dot: "bg-orange-500",
+  },
+  monitoring: {
+    bg: "bg-blue-500/10",
+    border: "border-blue-500/20",
+    text: "text-blue-400",
+    label: "Dipantau",
+    dot: "bg-blue-500",
+  },
+  resolved: {
+    bg: "bg-emerald-500/10",
+    border: "border-emerald-500/20",
+    text: "text-emerald-400",
+    label: "Terselesaikan",
+    dot: "bg-emerald-500",
+  },
 };
 
 function formatDateMono(d: string) {
@@ -40,15 +101,17 @@ interface IncidentDetailPageProps {
   params: Promise<{ id: string }>;
 }
 
-export default function IncidentDetailPage({ params }: IncidentDetailPageProps) {
+export default function IncidentDetailPage({
+  params,
+}: IncidentDetailPageProps) {
   const { id } = use(params);
-  const router = useRouter();
   const [incident, setIncident] = useState<Incident | null>(null);
   const [updates, setUpdates] = useState<IncidentUpdate[]>([]);
   const [loading, setLoading] = useState(true);
   const [updateStatus, setUpdateStatus] = useState("investigating");
   const [updateMessage, setUpdateMessage] = useState("");
   const [isSubmitting, setIsSubmitting] = useState(false);
+  const [isResolving, setIsResolving] = useState(false);
   const [error, setError] = useState("");
   const [fetchError, setFetchError] = useState("");
 
@@ -65,7 +128,7 @@ export default function IncidentDetailPage({ params }: IncidentDetailPageProps) 
 
       const allIncidents = await incRes.json();
       const inc = allIncidents.find((i: Incident) => i.id === id);
-      
+
       if (!inc) {
         setFetchError("Insiden tidak ditemukan");
         return;
@@ -102,7 +165,7 @@ export default function IncidentDetailPage({ params }: IncidentDetailPageProps) 
 
         const allIncidents = await incRes.json();
         const inc = allIncidents.find((i: Incident) => i.id === id);
-        
+
         if (!inc) {
           setFetchError("Insiden tidak ditemukan");
           return;
@@ -163,7 +226,7 @@ export default function IncidentDetailPage({ params }: IncidentDetailPageProps) 
   };
 
   const handleResolve = async () => {
-    setIsSubmitting(true);
+    setIsResolving(true);
     try {
       await fetch(`/api/incidents/${id}`, {
         method: "PATCH",
@@ -172,59 +235,47 @@ export default function IncidentDetailPage({ params }: IncidentDetailPageProps) 
       });
       await fetchData();
     } finally {
-      setIsSubmitting(false);
+      setIsResolving(false);
     }
   };
 
   if (loading) {
     return (
-      <div className="animate-pulse max-w-3xl space-y-8">
-        <div className="space-y-3">
-          <div className="h-8 bg-[#353534] rounded w-1/2" />
-          <div className="flex items-center gap-3">
-            <div className="h-6 bg-[#353534] rounded-full w-24" />
-            <div className="h-4 bg-[#353534] rounded w-1/3" />
-          </div>
-        </div>
-        <div className="space-y-4">
-          <div className="h-4 bg-[#353534] rounded w-16" />
-          <div className="border-l border-[#24292E] ml-3 pl-6 space-y-6">
-            {[1, 2].map((i) => (
-              <div key={i} className="space-y-2">
-                <div className="flex items-center gap-2">
-                  <div className="h-6 bg-[#353534] rounded-full w-20" />
-                  <div className="h-4 bg-[#353534] rounded w-28" />
-                </div>
-                <div className="h-4 bg-[#353534] rounded w-3/4" />
-              </div>
-            ))}
-          </div>
-        </div>
+      <div className="animate-pulse max-w-3xl space-y-6">
+        <div className="h-4 bg-zinc-800 rounded w-1/4" />
+        <div className="h-8 bg-zinc-800 rounded w-1/2" />
+        <div className="bg-[#121215] border border-[#27272a] rounded-xl p-6 h-48" />
       </div>
     );
   }
 
   if (fetchError) {
     return (
-      <div className="max-w-3xl card-level-1 rounded-xl p-8 text-center space-y-4">
-        <h2 className="text-xl font-bold text-[#E11D48]">Error Memuat Data</h2>
-        <p className="text-sm text-[#6A737D]">{fetchError}</p>
-        <div className="flex justify-center gap-3">
+      <div className="max-w-3xl bg-[#121215] border border-[#27272a] rounded-xl p-8 text-center space-y-4">
+        <div className="w-12 h-12 rounded-full bg-rose-500/10 border border-rose-500/20 text-rose-400 flex items-center justify-center mx-auto">
+          <AlertCircle className="w-6 h-6" />
+        </div>
+        <h2 className="text-lg font-semibold text-[#f4f4f5]">
+          Error Memuat Data
+        </h2>
+        <p className="text-sm text-zinc-400">{fetchError}</p>
+        <div className="flex justify-center gap-3 pt-2">
           <button
             onClick={() => {
               setLoading(true);
               fetchData();
             }}
-            className="btn-primary px-5 py-2 text-sm font-semibold transition-opacity"
+            className="inline-flex items-center gap-2 px-4 py-2 text-sm font-medium text-white bg-emerald-600 hover:bg-emerald-500 rounded-lg transition-colors"
           >
-            Coba Lagi
+            <RefreshCw className="w-4 h-4" />
+            <span>Coba Lagi</span>
           </button>
-          <button
-            onClick={() => router.push("/admin/incidents")}
-            className="btn-ghost px-5 py-2 text-sm transition-colors"
+          <Link
+            href="/admin/incidents"
+            className="px-4 py-2 text-sm font-medium text-zinc-300 bg-zinc-800 hover:bg-zinc-700 rounded-lg transition-colors border border-zinc-700/60"
           >
             Kembali
-          </button>
+          </Link>
         </div>
       </div>
     );
@@ -233,126 +284,188 @@ export default function IncidentDetailPage({ params }: IncidentDetailPageProps) 
   if (!incident) {
     return (
       <div className="text-center py-20">
-        <p className="text-[#6A737D]">Insiden tidak ditemukan.</p>
-        <button onClick={() => router.push("/admin/incidents")} className="mt-4 text-sm text-[#606AF0] hover:underline">
+        <p className="text-zinc-400">Insiden tidak ditemukan.</p>
+        <Link
+          href="/admin/incidents"
+          className="mt-4 inline-block text-sm text-emerald-400 hover:underline"
+        >
           Kembali ke daftar insiden
-        </button>
+        </Link>
       </div>
     );
   }
 
+  const sev = severityChip[incident.severity] || severityChip.minor;
   const st = statusChip[incident.status] || statusChip.investigating;
   const isResolved = incident.status === "resolved";
 
   return (
-    <div className="max-w-3xl">
-      <button
-        onClick={() => router.push("/admin/incidents")}
-        className="text-sm text-[#6A737D] hover:text-[#c6c5d7] mb-6 transition-colors flex items-center gap-1"
-      >
-        <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="m15 18-6-6 6-6"/></svg>
-        Kembali ke insiden
-      </button>
-
-      <div className="flex items-start justify-between mb-8">
-        <div>
-          <h1 className="text-2xl font-bold text-[#e5e2e1]">{incident.title}</h1>
-          <div className="flex items-center gap-3 mt-3">
-            <span className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-semibold ${st.bg} ${st.text} border ${st.border}`}>
-              {st.label}
-            </span>
-            <span className="text-sm text-[#6A737D]">
-              {incident.severity === "critical" ? "Kritis" : incident.severity === "major" ? "Mayor" : "Minor"}
-              {" · "}Dibuka {formatDateMono(incident.createdAt)}
-              {incident.resolvedAt && ` · Diselesaikan ${formatDateMono(incident.resolvedAt)}`}
-            </span>
-          </div>
-        </div>
-        {!isResolved && (
-          <button
-            onClick={handleResolve}
-            disabled={isSubmitting}
-            className="bg-[#28A745] hover:bg-[#218838] text-white px-5 py-2 rounded-lg text-sm font-medium transition-colors disabled:opacity-50 shrink-0"
-          >
-            Tandai Selesai
-          </button>
-        )}
+    <div className="max-w-3xl space-y-8">
+      {/* Back Link */}
+      <div>
+        <Link
+          href="/admin/incidents"
+          className="inline-flex items-center gap-1.5 text-xs font-mono text-zinc-400 hover:text-zinc-200 transition-colors"
+        >
+          <ArrowLeft className="w-3.5 h-3.5" />
+          <span>Kembali ke Daftar Insiden</span>
+        </Link>
       </div>
 
-      <section className="mb-8">
-        <h2 className="text-xs font-semibold uppercase tracking-[0.05em] text-[#6A737D] mb-4">Timeline</h2>
+      {/* Incident Header Card */}
+      <div className="bg-[#121215] border border-[#27272a] rounded-xl p-6 md:p-8 shadow-sm">
+        <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+          <div className="space-y-3">
+            <h1 className="text-2xl font-bold tracking-tight text-[#f4f4f5]">
+              {incident.title}
+            </h1>
+            <div className="flex flex-wrap items-center gap-2.5">
+              <span
+                className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium ${sev.bg} ${sev.text} border ${sev.border}`}
+              >
+                {sev.label}
+              </span>
+              <span
+                className={`inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full text-xs font-medium ${st.bg} ${st.text} border ${st.border}`}
+              >
+                <span className={`w-1.5 h-1.5 rounded-full ${st.dot}`} />
+                {st.label}
+              </span>
+              <span className="font-mono text-xs text-zinc-400 flex items-center gap-1">
+                <Clock className="w-3 h-3 text-zinc-500" />
+                {formatDateMono(incident.createdAt)}
+              </span>
+              {incident.resolvedAt && (
+                <span className="font-mono text-xs text-emerald-400/80 flex items-center gap-1">
+                  ✓ Selesai {formatDateMono(incident.resolvedAt)}
+                </span>
+              )}
+            </div>
+          </div>
+
+          {!isResolved && (
+            <button
+              onClick={handleResolve}
+              disabled={isResolving}
+              className="inline-flex items-center justify-center gap-2 bg-emerald-600 hover:bg-emerald-500 text-white px-4 py-2.5 rounded-lg text-sm font-medium transition-colors disabled:opacity-50 shrink-0 shadow-sm"
+            >
+              {isResolving ? (
+                <>
+                  <Loader2 className="w-4 h-4 animate-spin" />
+                  <span>Menyelesaikan...</span>
+                </>
+              ) : (
+                <>
+                  <CheckCircle2 className="w-4 h-4" />
+                  <span>Tandai Selesai</span>
+                </>
+              )}
+            </button>
+          )}
+        </div>
+      </div>
+
+      {/* Timeline Section */}
+      <div className="space-y-4">
+        <div className="flex items-center justify-between">
+          <h2 className="text-xs font-mono font-semibold uppercase tracking-wider text-zinc-400">
+            Timeline Pembaruan ({updates.length})
+          </h2>
+        </div>
+
         {updates.length === 0 ? (
-          <div className="bg-[#201f1f] border border-dashed border-[#24292E] rounded-lg p-4 flex items-center justify-center">
-            <p className="text-sm text-[#6A737D]">Belum ada update.</p>
+          <div className="bg-[#121215] border border-dashed border-[#27272a] rounded-xl p-8 text-center">
+            <p className="text-sm text-zinc-400">
+              Belum ada catatan pembaruan untuk insiden ini.
+            </p>
           </div>
         ) : (
-          <div className="border-l border-[#24292E] ml-3 pl-6 space-y-6">
+          <div className="relative pl-6 space-y-6 before:absolute before:left-2.5 before:top-2 before:bottom-2 before:w-[2px] before:bg-[#27272a]">
             {updates.map((u) => {
               const uSt = statusChip[u.status] || statusChip.investigating;
               return (
-                <div key={u.id} className="relative">
-                  <div className={`absolute -left-[28px] top-1 w-3 h-3 rounded-full ring-4 ring-[#0F0F0F] ${
-                    u.status === "resolved" ? "bg-[#28A745]" :
-                    u.status === "identified" ? "bg-orange-500" :
-                    "bg-[#FFBF00]"
-                  }`} />
-                  <div className="flex items-center gap-2 mb-1">
-                    <span className={`inline-flex items-center px-2 py-0.5 rounded-full text-xs font-semibold ${uSt.bg} ${uSt.text} border ${uSt.border}`}>
-                      {uSt.label}
-                    </span>
-                    <span className="font-data-mono text-sm text-[#6A737D]">{formatDateMono(u.createdAt)}</span>
+                <div key={u.id} className="relative group">
+                  {/* Timeline Dot */}
+                  <div
+                    className={`absolute -left-[23px] top-1.5 w-2.5 h-2.5 rounded-full ring-4 ring-[#09090b] ${uSt.dot}`}
+                  />
+                  {/* Card Update */}
+                  <div className="bg-[#121215] border border-[#27272a] rounded-xl p-4 md:p-5 shadow-xs">
+                    <div className="flex items-center justify-between gap-2 mb-2">
+                      <span
+                        className={`inline-flex items-center px-2 py-0.5 rounded-full text-xs font-medium ${uSt.bg} ${uSt.text} border ${uSt.border}`}
+                      >
+                        {uSt.label}
+                      </span>
+                      <span className="font-mono text-xs text-zinc-400">
+                        {formatDateMono(u.createdAt)}
+                      </span>
+                    </div>
+                    <p className="text-sm text-zinc-300 leading-relaxed whitespace-pre-wrap">
+                      {u.message}
+                    </p>
                   </div>
-                  <p className="text-base text-[#c6c5d7] mt-1">{u.message}</p>
                 </div>
               );
             })}
           </div>
         )}
-      </section>
+      </div>
 
+      {/* Add Update Form */}
       {!isResolved && (
-        <section className="card-level-1 rounded-xl p-6">
-          <h2 className="text-xs font-semibold uppercase tracking-[0.05em] text-[#6A737D] mb-4">Tambah Update</h2>
-          <form onSubmit={handleAddUpdate} className="space-y-4">
+        <div className="bg-[#121215] border border-[#27272a] rounded-xl p-6 md:p-8 shadow-sm space-y-5">
+          <div className="border-b border-[#27272a] pb-4">
+            <h2 className="text-base font-semibold text-[#f4f4f5]">
+              Tambah Catatan Pembaruan
+            </h2>
+            <p className="text-xs text-zinc-400 mt-0.5">
+              Posting pembaruan status terkini untuk ditampilkan kepada pengunjung publik.
+            </p>
+          </div>
+
+          <form onSubmit={handleAddUpdate} className="space-y-5">
             {error && (
               <div
                 role="alert"
-                className="rounded px-4 py-3 text-sm"
-                style={{
-                  backgroundColor: "rgba(225, 29, 72, 0.1)",
-                  border: "1px solid rgba(225, 29, 72, 0.2)",
-                  color: "#E11D48",
-                }}
+                className="flex items-start gap-2.5 p-3 rounded-lg bg-rose-500/10 border border-rose-500/20 text-rose-400 text-sm"
               >
-                {error}
+                <AlertCircle className="w-4 h-4 shrink-0 mt-0.5" />
+                <span>{error}</span>
               </div>
             )}
 
-            <div className="flex flex-col gap-2">
-              <label htmlFor="updateStatus" className="text-xs font-semibold uppercase tracking-[0.05em] text-[#e5e2e1]">
-                Status
+            <div className="space-y-2">
+              <label
+                htmlFor="updateStatus"
+                className="block text-xs font-mono font-semibold uppercase tracking-wider text-zinc-300"
+              >
+                Status Terkini
               </label>
               <div className="relative">
                 <select
                   id="updateStatus"
                   value={updateStatus}
                   onChange={(e) => setUpdateStatus(e.target.value)}
-                  className="input-inset block w-full px-4 py-3 text-base rounded-lg appearance-none pr-10"
+                  className="block w-full px-3.5 py-2.5 text-sm text-[#f4f4f5] bg-zinc-900/80 border border-[#27272a] rounded-lg focus:outline-none focus:border-emerald-500/60 focus:ring-1 focus:ring-emerald-500/50 transition-colors appearance-none pr-10"
                 >
-                  <option value="investigating">Diselidiki</option>
-                  <option value="identified">Teridentifikasi</option>
-                  <option value="monitoring">Dipantau</option>
-                  <option value="resolved">Terselesaikan</option>
+                  <option value="investigating">Diselidiki (Sedang menganalisis akar masalah)</option>
+                  <option value="identified">Teridentifikasi (Penyebab telah ditemukan)</option>
+                  <option value="monitoring">Dipantau (Perbaikan diterapkan, pemantauan kestabilan)</option>
+                  <option value="resolved">Terselesaikan (Layanan pulih sepenuhnya)</option>
                 </select>
-                <div className="pointer-events-none absolute inset-y-0 right-0 flex items-center px-4 text-[#c6c5d7]">
-                  <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="m6 9 6 6 6-6"/></svg>
+                <div className="pointer-events-none absolute inset-y-0 right-0 flex items-center px-3 text-zinc-500">
+                  <ChevronDown className="w-4 h-4" />
                 </div>
               </div>
             </div>
 
-            <div className="flex flex-col gap-2">
-              <label htmlFor="updateMessage" className="text-xs font-semibold uppercase tracking-[0.05em] text-[#e5e2e1]">
-                Pesan
+            <div className="space-y-2">
+              <label
+                htmlFor="updateMessage"
+                className="block text-xs font-mono font-semibold uppercase tracking-wider text-zinc-300"
+              >
+                Pesan Pembaruan
               </label>
               <textarea
                 id="updateMessage"
@@ -360,20 +473,32 @@ export default function IncidentDetailPage({ params }: IncidentDetailPageProps) 
                 onChange={(e) => setUpdateMessage(e.target.value)}
                 required
                 rows={3}
-                className="input-inset block w-full px-4 py-3 text-base rounded-lg resize-none"
-                placeholder="Jelaskan situasi saat ini..."
+                className="block w-full px-3.5 py-2.5 text-sm text-[#f4f4f5] bg-zinc-900/80 border border-[#27272a] rounded-lg placeholder-zinc-600 focus:outline-none focus:border-emerald-500/60 focus:ring-1 focus:ring-emerald-500/50 transition-colors resize-none leading-relaxed"
+                placeholder="Deskripsikan perkembangan penanganan, investigasi, atau mitigasi yang sedang dilakukan..."
               />
             </div>
 
-            <button
-              type="submit"
-              disabled={isSubmitting}
-              className="btn-primary py-3 px-6 text-xs font-semibold uppercase tracking-[0.05em] transition-opacity disabled:opacity-50"
-            >
-              {isSubmitting ? "Mengirim..." : "Kirim Update"}
-            </button>
+            <div className="flex justify-end pt-2">
+              <button
+                type="submit"
+                disabled={isSubmitting || !updateMessage.trim()}
+                className="px-5 py-2.5 text-sm font-medium text-white bg-emerald-600 hover:bg-emerald-500 rounded-lg transition-colors disabled:opacity-50 flex items-center gap-2 shadow-sm"
+              >
+                {isSubmitting ? (
+                  <>
+                    <Loader2 className="w-4 h-4 animate-spin" />
+                    <span>Mengirim Update...</span>
+                  </>
+                ) : (
+                  <>
+                    <Send className="w-4 h-4" />
+                    <span>Kirim Pembaruan</span>
+                  </>
+                )}
+              </button>
+            </div>
           </form>
-        </section>
+        </div>
       )}
     </div>
   );

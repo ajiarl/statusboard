@@ -2,6 +2,8 @@
 
 import { useState, useEffect, FormEvent } from "react";
 import { useRouter } from "next/navigation";
+import Link from "next/link";
+import { ArrowLeft, ChevronDown, AlertCircle, Loader2 } from "lucide-react";
 
 interface Monitor {
   id: string;
@@ -27,7 +29,7 @@ export default function NewIncidentPage() {
         return r.json();
       })
       .then((data) => {
-        setMonitors(data);
+        setMonitors(Array.isArray(data) ? data : []);
       })
       .catch((err) => {
         console.error("Fetch monitors error:", err);
@@ -70,30 +72,43 @@ export default function NewIncidentPage() {
   };
 
   return (
-    <div className="max-w-3xl">
-      <div className="mb-8">
-        <h2 className="text-3xl font-bold text-[#e5e2e1] mb-2">Buat Insiden Baru</h2>
-        <p className="text-base text-[#6A737D]">Laporkan gangguan atau pemeliharaan terjadwal.</p>
+    <div className="max-w-3xl space-y-6">
+      <div className="flex items-center gap-2">
+        <Link
+          href="/admin/incidents"
+          className="inline-flex items-center gap-1.5 text-xs font-mono text-zinc-400 hover:text-zinc-200 transition-colors"
+        >
+          <ArrowLeft className="w-3.5 h-3.5" />
+          <span>Kembali ke Daftar Insiden</span>
+        </Link>
       </div>
 
-      <div className="card-level-1 rounded-xl p-6 md:p-8">
-        <form onSubmit={handleSubmit} className="space-y-8">
+      <div>
+        <h1 className="text-2xl font-bold tracking-tight text-[#f4f4f5]">
+          Buat Insiden Baru
+        </h1>
+        <p className="text-sm text-zinc-400 mt-1">
+          Laporkan kendala, degradasi performa, atau pemeliharaan sistem ke publik.
+        </p>
+      </div>
+
+      <div className="bg-[#121215] border border-[#27272a] rounded-xl p-6 md:p-8 shadow-sm">
+        <form onSubmit={handleSubmit} className="space-y-6">
           {error && (
             <div
               role="alert"
-              className="rounded px-4 py-3 text-sm"
-              style={{
-                backgroundColor: "rgba(225, 29, 72, 0.1)",
-                border: "1px solid rgba(225, 29, 72, 0.2)",
-                color: "#E11D48",
-              }}
+              className="flex items-start gap-2.5 p-3 rounded-lg bg-rose-500/10 border border-rose-500/20 text-rose-400 text-sm"
             >
-              {error}
+              <AlertCircle className="w-4 h-4 shrink-0 mt-0.5" />
+              <span>{error}</span>
             </div>
           )}
 
-          <div className="flex flex-col gap-2">
-            <label htmlFor="title" className="text-xs font-semibold uppercase tracking-[0.05em] text-[#e5e2e1]">
+          <div className="space-y-2">
+            <label
+              htmlFor="title"
+              className="block text-xs font-mono font-semibold uppercase tracking-wider text-zinc-300"
+            >
               Judul Insiden
             </label>
             <input
@@ -102,36 +117,42 @@ export default function NewIncidentPage() {
               value={title}
               onChange={(e) => setTitle(e.target.value)}
               required
-              className="input-inset block w-full px-4 py-3 text-base text-[#e5e2e1] rounded-lg"
-              placeholder="Deskripsi singkat gangguan"
+              className="block w-full px-3.5 py-2.5 text-sm text-[#f4f4f5] bg-zinc-900/80 border border-[#27272a] rounded-lg placeholder-zinc-600 focus:outline-none focus:border-emerald-500/60 focus:ring-1 focus:ring-emerald-500/50 transition-colors"
+              placeholder="e.g. Latensi tinggi pada database Supabase, API down"
             />
           </div>
 
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
-            <div className="flex flex-col gap-2">
-              <label htmlFor="severity" className="text-xs font-semibold uppercase tracking-[0.05em] text-[#e5e2e1]">
-                Severitas
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-5">
+            <div className="space-y-2">
+              <label
+                htmlFor="severity"
+                className="block text-xs font-mono font-semibold uppercase tracking-wider text-zinc-300"
+              >
+                Tingkat Severitas
               </label>
               <div className="relative">
                 <select
                   id="severity"
                   value={severity}
                   onChange={(e) => setSeverity(e.target.value)}
-                  className="input-inset block w-full px-4 py-3 text-base rounded-lg appearance-none pr-10"
+                  className="block w-full px-3.5 py-2.5 text-sm text-[#f4f4f5] bg-zinc-900/80 border border-[#27272a] rounded-lg focus:outline-none focus:border-emerald-500/60 focus:ring-1 focus:ring-emerald-500/50 transition-colors appearance-none pr-10"
                 >
-                  <option value="minor">Minor</option>
-                  <option value="major">Mayor</option>
-                  <option value="critical">Kritis</option>
+                  <option value="minor">Minor (Gangguan kecil/parsial)</option>
+                  <option value="major">Mayor (Layanan terganggu)</option>
+                  <option value="critical">Kritis (Layanan mati total)</option>
                 </select>
-                <div className="pointer-events-none absolute inset-y-0 right-0 flex items-center px-4 text-[#c6c5d7]">
-                  <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="m6 9 6 6 6-6"/></svg>
+                <div className="pointer-events-none absolute inset-y-0 right-0 flex items-center px-3 text-zinc-500">
+                  <ChevronDown className="w-4 h-4" />
                 </div>
               </div>
             </div>
 
-            <div className="flex flex-col gap-2">
-              <label htmlFor="monitor" className="text-xs font-semibold uppercase tracking-[0.05em] text-[#e5e2e1]">
-                Monitor Terkait
+            <div className="space-y-2">
+              <label
+                htmlFor="monitor"
+                className="block text-xs font-mono font-semibold uppercase tracking-wider text-zinc-300"
+              >
+                Layanan Terkait (Opsional)
               </label>
               <div className="relative">
                 <select
@@ -139,40 +160,48 @@ export default function NewIncidentPage() {
                   value={monitorId}
                   onChange={(e) => setMonitorId(e.target.value)}
                   disabled={loadingMonitors}
-                  className="input-inset block w-full px-4 py-3 text-base rounded-lg appearance-none pr-10 disabled:opacity-50"
+                  className="block w-full px-3.5 py-2.5 text-sm text-[#f4f4f5] bg-zinc-900/80 border border-[#27272a] rounded-lg focus:outline-none focus:border-emerald-500/60 focus:ring-1 focus:ring-emerald-500/50 transition-colors appearance-none pr-10 disabled:opacity-50"
                 >
                   {loadingMonitors ? (
-                    <option>Memuat monitor...</option>
+                    <option>Memuat daftar monitor...</option>
                   ) : (
                     <>
-                      <option value="">Tidak ada</option>
+                      <option value="">Tidak terhubung ke monitor tertentu</option>
                       {monitors.map((m) => (
-                        <option key={m.id} value={m.id}>{m.name}</option>
+                        <option key={m.id} value={m.id}>
+                          {m.name}
+                        </option>
                       ))}
                     </>
                   )}
                 </select>
-                <div className="pointer-events-none absolute inset-y-0 right-0 flex items-center px-4 text-[#c6c5d7]">
-                  <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="m6 9 6 6 6-6"/></svg>
+                <div className="pointer-events-none absolute inset-y-0 right-0 flex items-center px-3 text-zinc-500">
+                  <ChevronDown className="w-4 h-4" />
                 </div>
               </div>
             </div>
           </div>
 
-          <div className="flex flex-col-reverse md:flex-row justify-end gap-4 pt-4 mt-4">
-            <button
-              type="button"
-              onClick={() => router.push("/admin/incidents")}
-              className="btn-ghost py-3 px-6 text-xs font-semibold uppercase tracking-[0.05em] text-center transition-colors"
+          <div className="flex items-center justify-end gap-3 pt-4 border-t border-[#27272a]">
+            <Link
+              href="/admin/incidents"
+              className="px-4 py-2 text-sm font-medium text-zinc-300 hover:text-zinc-100 bg-zinc-800/80 hover:bg-zinc-700 border border-zinc-700/60 rounded-lg transition-colors"
             >
               Batal
-            </button>
+            </Link>
             <button
               type="submit"
               disabled={isSubmitting}
-              className="btn-primary py-3 px-6 text-xs font-semibold uppercase tracking-[0.05em] transition-opacity text-center disabled:opacity-50 flex items-center justify-center gap-2"
+              className="px-5 py-2 text-sm font-medium text-white bg-emerald-600 hover:bg-emerald-500 rounded-lg transition-colors disabled:opacity-50 flex items-center gap-2 shadow-sm"
             >
-              {isSubmitting ? "Membuat..." : "Buat Insiden"}
+              {isSubmitting ? (
+                <>
+                  <Loader2 className="w-4 h-4 animate-spin" />
+                  <span>Membuat Insiden...</span>
+                </>
+              ) : (
+                <span>Buat Insiden</span>
+              )}
             </button>
           </div>
         </form>

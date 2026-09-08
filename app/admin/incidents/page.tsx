@@ -2,6 +2,14 @@
 
 import Link from "next/link";
 import { useEffect, useState, useCallback } from "react";
+import {
+  AlertTriangle,
+  Search,
+  CheckCircle2,
+  Plus,
+  ChevronRight,
+  Clock,
+} from "lucide-react";
 
 interface Incident {
   id: string;
@@ -12,17 +20,58 @@ interface Incident {
   resolvedAt: string | null;
 }
 
-const severityChip: Record<string, { bg: string; border: string; text: string }> = {
-  minor: { bg: "bg-[#FFBF00]/10", border: "border-[#FFBF00]/20", text: "text-[#FFBF00]" },
-  major: { bg: "bg-orange-500/10", border: "border-orange-500/20", text: "text-orange-500" },
-  critical: { bg: "bg-[#E11D48]/10", border: "border-[#E11D48]/20", text: "text-[#E11D48]" },
+const severityChip: Record<
+  string,
+  { bg: string; border: string; text: string; label: string }
+> = {
+  minor: {
+    bg: "bg-amber-500/10",
+    border: "border-amber-500/20",
+    text: "text-amber-400",
+    label: "Minor",
+  },
+  major: {
+    bg: "bg-orange-500/10",
+    border: "border-orange-500/20",
+    text: "text-orange-400",
+    label: "Mayor",
+  },
+  critical: {
+    bg: "bg-rose-500/10",
+    border: "border-rose-500/20",
+    text: "text-rose-400",
+    label: "Kritis",
+  },
 };
 
-const statusChip: Record<string, { bg: string; border: string; text: string; label: string }> = {
-  investigating: { bg: "bg-[#FFBF00]/10", border: "border-[#FFBF00]/20", text: "text-[#FFBF00]", label: "Diselidiki" },
-  identified: { bg: "bg-orange-500/10", border: "border-orange-500/20", text: "text-orange-500", label: "Teridentifikasi" },
-  monitoring: { bg: "bg-[#FFBF00]/10", border: "border-[#FFBF00]/20", text: "text-[#FFBF00]", label: "Dipantau" },
-  resolved: { bg: "bg-[#28A745]/10", border: "border-[#28A745]/20", text: "text-[#28A745]", label: "Terselesaikan" },
+const statusChip: Record<
+  string,
+  { bg: string; border: string; text: string; label: string }
+> = {
+  investigating: {
+    bg: "bg-amber-500/10",
+    border: "border-amber-500/20",
+    text: "text-amber-400",
+    label: "Diselidiki",
+  },
+  identified: {
+    bg: "bg-orange-500/10",
+    border: "border-orange-500/20",
+    text: "text-orange-400",
+    label: "Teridentifikasi",
+  },
+  monitoring: {
+    bg: "bg-blue-500/10",
+    border: "border-blue-500/20",
+    text: "text-blue-400",
+    label: "Dipantau",
+  },
+  resolved: {
+    bg: "bg-emerald-500/10",
+    border: "border-emerald-500/20",
+    text: "text-emerald-400",
+    label: "Terselesaikan",
+  },
 };
 
 function formatDateMono(d: string) {
@@ -43,7 +92,7 @@ export default function IncidentsPage() {
     try {
       const res = await fetch("/api/incidents");
       const data = await res.json();
-      setIncidents(data);
+      setIncidents(Array.isArray(data) ? data : []);
     } finally {
       setLoading(false);
     }
@@ -55,130 +104,172 @@ export default function IncidentsPage() {
 
   if (loading) {
     return (
-      <div className="animate-pulse space-y-4">
-        <div className="bg-[#171824] border border-[#24292E] rounded-xl overflow-hidden">
-          <div className="hidden md:grid grid-cols-12 gap-4 p-4 border-b border-[#24292E] bg-[#1c1b1b]">
-            <div className="col-span-4 h-4 bg-[#353534] rounded w-1/3" />
-            <div className="col-span-2 h-4 bg-[#353534] rounded w-1/4" />
-            <div className="col-span-2 h-4 bg-[#353534] rounded w-1/4" />
-            <div className="col-span-3 h-4 bg-[#353534] rounded w-1/3" />
-            <div className="col-span-1 h-4 bg-[#353534] rounded w-1/2 ml-auto" />
-          </div>
-          <div className="divide-y divide-[#24292E]">
-            {[1, 2, 3].map((i) => (
-              <div key={i} className="p-5 grid grid-cols-1 md:grid-cols-12 gap-4 items-center">
-                <div className="col-span-4">
-                  <div className="h-4 bg-[#353534] rounded w-3/4" />
-                </div>
-                <div className="col-span-2">
-                  <div className="h-6 bg-[#353534] rounded-full w-16" />
-                </div>
-                <div className="col-span-2">
-                  <div className="h-6 bg-[#353534] rounded-full w-20" />
-                </div>
-                <div className="col-span-3">
-                  <div className="h-4 bg-[#353534] rounded w-1/2" />
-                </div>
-                <div className="col-span-1">
-                  <div className="h-6 bg-[#353534] rounded w-6 ml-auto" />
-                </div>
-              </div>
-            ))}
-          </div>
+      <div className="animate-pulse space-y-6">
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+          {[1, 2, 3].map((i) => (
+            <div
+              key={i}
+              className="bg-[#121215] border border-[#27272a] rounded-xl p-6 h-24"
+            />
+          ))}
+        </div>
+        <div className="bg-[#121215] border border-[#27272a] rounded-xl overflow-hidden divide-y divide-[#27272a]">
+          <div className="h-12 bg-zinc-900/50" />
+          {[1, 2, 3].map((i) => (
+            <div key={i} className="p-4 h-16 bg-zinc-900/20" />
+          ))}
         </div>
       </div>
     );
   }
 
   const activeCount = incidents.filter((i) => i.status !== "resolved").length;
-  const investigatingCount = incidents.filter((i) => i.status === "investigating").length;
+  const investigatingCount = incidents.filter(
+    (i) => i.status === "investigating"
+  ).length;
 
   return (
-    <div>
+    <div className="space-y-6">
+      {/* Stat Cards */}
+      <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
+        <div className="bg-[#121215] border border-[#27272a] p-5 rounded-xl flex items-center gap-4">
+          <div className="w-11 h-11 bg-rose-500/10 border border-rose-500/20 rounded-xl flex items-center justify-center text-rose-400 shrink-0">
+            <AlertTriangle className="w-5 h-5" />
+          </div>
+          <div>
+            <p className="text-xs font-mono font-medium uppercase tracking-wider text-zinc-400">
+              Insiden Aktif
+            </p>
+            <h3 className="text-2xl font-bold font-mono text-[#f4f4f5] mt-0.5">
+              {activeCount}
+            </h3>
+          </div>
+        </div>
+
+        <div className="bg-[#121215] border border-[#27272a] p-5 rounded-xl flex items-center gap-4">
+          <div className="w-11 h-11 bg-amber-500/10 border border-amber-500/20 rounded-xl flex items-center justify-center text-amber-400 shrink-0">
+            <Search className="w-5 h-5" />
+          </div>
+          <div>
+            <p className="text-xs font-mono font-medium uppercase tracking-wider text-zinc-400">
+              Tahap Investigasi
+            </p>
+            <h3 className="text-2xl font-bold font-mono text-amber-400 mt-0.5">
+              {investigatingCount}
+            </h3>
+          </div>
+        </div>
+
+        <div className="bg-[#121215] border border-[#27272a] p-5 rounded-xl flex items-center gap-4">
+          <div className="w-11 h-11 bg-emerald-500/10 border border-emerald-500/20 rounded-xl flex items-center justify-center text-emerald-400 shrink-0">
+            <CheckCircle2 className="w-5 h-5" />
+          </div>
+          <div>
+            <p className="text-xs font-mono font-medium uppercase tracking-wider text-zinc-400">
+              Total Insiden
+            </p>
+            <h3 className="text-2xl font-bold font-mono text-[#f4f4f5] mt-0.5">
+              {incidents.length}
+            </h3>
+          </div>
+        </div>
+      </div>
+
       {incidents.length === 0 ? (
-        <div className="flex flex-col items-center justify-center p-8 border border-dashed border-[#454654] rounded-xl bg-[#171824]/30">
-          <p className="text-[#c6c5d7] text-base">Tidak ada insiden yang tercatat.</p>
+        <div className="flex flex-col items-center justify-center p-12 border border-dashed border-[#27272a] rounded-xl bg-[#121215]/50 text-center">
+          <div className="w-12 h-12 rounded-full bg-zinc-800/60 border border-zinc-700/60 flex items-center justify-center text-zinc-400 mb-4">
+            <CheckCircle2 className="w-6 h-6 text-emerald-400" />
+          </div>
+          <h3 className="text-base font-semibold text-[#f4f4f5] mb-1">
+            Semua Sistem Beroperasi Normal
+          </h3>
+          <p className="text-sm text-zinc-400 max-w-sm mb-5">
+            Tidak ada insiden atau pemeliharaan yang tercatat di database saat ini.
+          </p>
+          <Link
+            href="/admin/incidents/new"
+            className="inline-flex items-center gap-2 bg-emerald-600 hover:bg-emerald-500 text-white px-4 py-2 rounded-lg text-sm font-medium transition-colors shadow-sm"
+          >
+            <Plus className="w-4 h-4" />
+            <span>Buat Insiden Baru</span>
+          </Link>
         </div>
       ) : (
-        <>
-          <div className="bg-[#171824] border border-[#24292E] rounded-xl overflow-hidden">
-            <div className="overflow-x-auto">
-              <table className="w-full text-left border-collapse">
-                <thead>
-                  <tr className="bg-[#1c1b1b] border-b border-[#24292E]">
-                    <th className="px-6 py-4 text-xs font-semibold uppercase tracking-[0.05em] text-[#6A737D]">Judul Insiden</th>
-                    <th className="px-6 py-4 text-xs font-semibold uppercase tracking-[0.05em] text-[#6A737D]">Severitas</th>
-                    <th className="px-6 py-4 text-xs font-semibold uppercase tracking-[0.05em] text-[#6A737D]">Status</th>
-                    <th className="px-6 py-4 text-xs font-semibold uppercase tracking-[0.05em] text-[#6A737D] hidden md:table-cell">Tanggal Dibuat</th>
-                    <th className="px-6 py-4 text-xs font-semibold uppercase tracking-[0.05em] text-[#6A737D] text-right">Aksi</th>
-                  </tr>
-                </thead>
-                <tbody className="divide-y divide-[#24292E]">
-                  {incidents.map((inc) => {
-                    const sev = severityChip[inc.severity] || severityChip.minor;
-                    const st = statusChip[inc.status] || statusChip.investigating;
-                    return (
-                      <tr key={inc.id} className="hover:bg-white/[0.02] transition-colors group">
-                        <td className="px-6 py-5 text-base text-[#e5e2e1]">{inc.title}</td>
-                        <td className="px-6 py-5">
-                          <span className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-semibold ${sev.bg} ${sev.text} border ${sev.border}`}>
-                            {inc.severity === "critical" ? "Kritis" : inc.severity === "major" ? "Mayor" : "Minor"}
-                          </span>
-                        </td>
-                        <td className="px-6 py-5">
-                          <span className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-semibold ${st.bg} ${st.text} border ${st.border}`}>
-                            {st.label}
-                          </span>
-                        </td>
-                        <td className="px-6 py-5 font-data-mono text-[#c6c5d7] hidden md:table-cell">{formatDateMono(inc.createdAt)}</td>
-                        <td className="px-6 py-5 text-right">
-                          <div className="flex justify-end gap-3 opacity-100 md:opacity-0 md:group-hover:opacity-100 transition-opacity">
-                            <Link
-                              href={`/admin/incidents/${inc.id}`}
-                              className="text-[#c6c5d7] hover:text-[#bec2ff] transition-colors"
-                            >
-                              <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M17 3a2.85 2.83 0 1 1 4 4L7.5 20.5 2 22l1.5-5.5Z"/><path d="m15 5 4 4"/></svg>
-                            </Link>
-                          </div>
-                        </td>
-                      </tr>
-                    );
-                  })}
-                </tbody>
-              </table>
-            </div>
+        <div className="bg-[#121215] border border-[#27272a] rounded-xl overflow-hidden shadow-sm">
+          <div className="overflow-x-auto">
+            <table className="w-full text-left border-collapse">
+              <thead>
+                <tr className="bg-zinc-900/50 border-b border-[#27272a]">
+                  <th className="px-6 py-3.5 text-[11px] font-mono font-medium uppercase tracking-wider text-zinc-400">
+                    Judul Insiden
+                  </th>
+                  <th className="px-6 py-3.5 text-[11px] font-mono font-medium uppercase tracking-wider text-zinc-400">
+                    Severitas
+                  </th>
+                  <th className="px-6 py-3.5 text-[11px] font-mono font-medium uppercase tracking-wider text-zinc-400">
+                    Status Lifecycle
+                  </th>
+                  <th className="px-6 py-3.5 text-[11px] font-mono font-medium uppercase tracking-wider text-zinc-400 hidden md:table-cell">
+                    Waktu Dibuat
+                  </th>
+                  <th className="px-6 py-3.5 text-[11px] font-mono font-medium uppercase tracking-wider text-zinc-400 text-right">
+                    Detail
+                  </th>
+                </tr>
+              </thead>
+              <tbody className="divide-y divide-[#27272a]">
+                {incidents.map((inc) => {
+                  const sev = severityChip[inc.severity] || severityChip.minor;
+                  const st = statusChip[inc.status] || statusChip.investigating;
+                  return (
+                    <tr
+                      key={inc.id}
+                      className="hover:bg-zinc-800/30 transition-colors group"
+                    >
+                      <td className="px-6 py-4">
+                        <Link
+                          href={`/admin/incidents/${inc.id}`}
+                          className="text-sm font-medium text-[#f4f4f5] hover:text-emerald-400 transition-colors block"
+                        >
+                          {inc.title}
+                        </Link>
+                      </td>
+                      <td className="px-6 py-4">
+                        <span
+                          className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium ${sev.bg} ${sev.text} border ${sev.border}`}
+                        >
+                          {sev.label}
+                        </span>
+                      </td>
+                      <td className="px-6 py-4">
+                        <span
+                          className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium ${st.bg} ${st.text} border ${st.border}`}
+                        >
+                          {st.label}
+                        </span>
+                      </td>
+                      <td className="px-6 py-4 font-mono text-xs text-zinc-400 hidden md:table-cell">
+                        <span className="flex items-center gap-1.5">
+                          <Clock className="w-3.5 h-3.5 text-zinc-500" />
+                          {formatDateMono(inc.createdAt)}
+                        </span>
+                      </td>
+                      <td className="px-6 py-4 text-right">
+                        <Link
+                          href={`/admin/incidents/${inc.id}`}
+                          className="inline-flex items-center p-1.5 text-zinc-400 hover:text-zinc-100 hover:bg-zinc-800/60 rounded-md transition-colors"
+                          title="Buka Timeline & Kelola Insiden"
+                        >
+                          <ChevronRight className="w-4 h-4" />
+                        </Link>
+                      </td>
+                    </tr>
+                  );
+                })}
+              </tbody>
+            </table>
           </div>
-
-          <div className="mt-8 grid grid-cols-1 md:grid-cols-3 gap-4">
-            <div className="bg-[#171824] border border-[#24292E] p-6 rounded-xl flex items-center gap-4">
-              <div className="w-12 h-12 bg-[#E11D48]/10 rounded-lg flex items-center justify-center">
-                <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="#E11D48" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="m21.73 18-8-14a2 2 0 0 0-3.48 0l-8 14A2 2 0 0 0 4 21h16a2 2 0 0 0 1.73-3"/><path d="M12 9v4"/><path d="M12 17h.01"/></svg>
-              </div>
-              <div>
-                <p className="text-xs font-semibold uppercase tracking-[0.05em] text-[#6A737D] mb-1">Insiden Aktif</p>
-                <h3 className="text-2xl font-semibold text-[#e5e2e1]">{activeCount}</h3>
-              </div>
-            </div>
-            <div className="bg-[#171824] border border-[#24292E] p-6 rounded-xl flex items-center gap-4">
-              <div className="w-12 h-12 bg-[#FFBF00]/10 rounded-lg flex items-center justify-center">
-                <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="#FFBF00" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><circle cx="11" cy="11" r="8"/><path d="m21 21-4.3-4.3"/></svg>
-              </div>
-              <div>
-                <p className="text-xs font-semibold uppercase tracking-[0.05em] text-[#6A737D] mb-1">Diselidiki</p>
-                <h3 className="text-2xl font-semibold text-[#e5e2e1]">{investigatingCount}</h3>
-              </div>
-            </div>
-            <div className="bg-[#171824] border border-[#24292E] p-6 rounded-xl flex items-center gap-4">
-              <div className="w-12 h-12 bg-[#28A745]/10 rounded-lg flex items-center justify-center">
-                <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="#28A745" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"/><path d="m9 11 3 3L22 4"/></svg>
-              </div>
-              <div>
-                <p className="text-xs font-semibold uppercase tracking-[0.05em] text-[#6A737D] mb-1">Total Insiden</p>
-                <h3 className="text-2xl font-semibold text-[#e5e2e1]">{incidents.length}</h3>
-              </div>
-            </div>
-          </div>
-        </>
+        </div>
       )}
     </div>
   );

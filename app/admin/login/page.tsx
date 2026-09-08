@@ -2,6 +2,8 @@
 
 import { useState, FormEvent } from "react";
 import { useRouter } from "next/navigation";
+import Link from "next/link";
+import { Lock, LogIn, AlertCircle, ArrowLeft, Loader2 } from "lucide-react";
 
 export default function LoginPage() {
   const router = useRouter();
@@ -46,39 +48,46 @@ export default function LoginPage() {
   };
 
   return (
-    <div className="min-h-screen flex items-center justify-center p-4 md:p-6 bg-[#0F0F0F]">
+    <div className="min-h-screen flex flex-col items-center justify-center p-4 md:p-6 bg-[#09090b] text-[#f4f4f5]">
       <div className="w-full max-w-md">
+        {/* Brand header */}
         <div className="text-center mb-8">
-          <h1 className="text-2xl font-semibold text-[#bec2ff]">StatusBoard</h1>
+          <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-emerald-500/10 border border-emerald-500/20 text-emerald-400 text-xs font-mono font-medium mb-4">
+            <span className="w-1.5 h-1.5 rounded-full bg-emerald-400 animate-pulse" />
+            ADMIN CONSOLE
+          </div>
+          <h1 className="text-2xl font-bold tracking-tight text-[#f4f4f5]">
+            StatusBoard
+          </h1>
+          <p className="text-sm text-zinc-400 mt-1">
+            Masuk untuk mengelola monitor dan incident response
+          </p>
         </div>
 
-        <div className="card-level-1 rounded-lg p-8 shadow-lg">
-          <form onSubmit={handleSubmit} className="space-y-4">
+        {/* Elevated Form Card */}
+        <div className="bg-[#121215] border border-[#27272a] rounded-xl p-6 sm:p-8 shadow-2xl backdrop-blur-sm">
+          <form onSubmit={handleSubmit} className="space-y-5">
             {error && (
               <div
                 id="login-error"
-                className="rounded px-4 py-3 text-sm"
-                style={{
-                  backgroundColor: "rgba(225, 29, 72, 0.1)",
-                  border: "1px solid rgba(225, 29, 72, 0.2)",
-                  color: "#E11D48",
-                }}
                 role="alert"
+                className="flex items-start gap-2.5 p-3 rounded-lg bg-rose-500/10 border border-rose-500/20 text-rose-400 text-sm"
               >
-                {error}
+                <AlertCircle className="w-4 h-4 shrink-0 mt-0.5" />
+                <span>{error}</span>
               </div>
             )}
 
             <div>
               <label
                 htmlFor="password"
-                className="block mb-2 text-xs font-semibold uppercase tracking-[0.05em] text-[#c6c5d7]"
+                className="block mb-2 text-xs font-semibold uppercase tracking-wider text-zinc-300 font-mono"
               >
                 Kata Sandi
               </label>
               <div className="relative">
-                <span className="absolute inset-y-0 left-0 flex items-center pl-3 pointer-events-none text-[#c6c5d7]">
-                  <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"><rect width="18" height="11" x="3" y="11" rx="2" ry="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/></svg>
+                <span className="absolute inset-y-0 left-0 flex items-center pl-3.5 pointer-events-none text-zinc-500">
+                  <Lock className="w-4 h-4" />
                 </span>
                 <input
                   type="password"
@@ -86,30 +95,48 @@ export default function LoginPage() {
                   name="password"
                   value={password}
                   onChange={(e) => setPassword(e.target.value)}
-                  placeholder="••••••••"
+                  placeholder="••••••••••••"
                   required
                   disabled={isLoading}
                   aria-invalid={!!error}
                   aria-describedby={error ? "login-error" : undefined}
-                  className="input-inset block w-full pl-10 pr-3 py-2 text-base text-[#e5e2e1] rounded bg-[#0F0F0F] disabled:opacity-50 disabled:cursor-not-allowed"
+                  className="block w-full pl-10 pr-3.5 py-2.5 text-sm text-[#f4f4f5] bg-zinc-900/80 border border-[#27272a] rounded-lg placeholder-zinc-600 focus:outline-none focus:border-emerald-500/60 focus:ring-1 focus:ring-emerald-500/50 transition-colors disabled:opacity-50 disabled:cursor-not-allowed font-mono"
                   autoComplete="current-password"
                 />
               </div>
             </div>
 
-            <div className="pt-2">
+            <div className="pt-1">
               <button
                 type="submit"
                 disabled={isLoading || !password}
-                className="btn-primary w-full py-2 px-4 text-base font-semibold transition-opacity flex justify-center items-center gap-2 disabled:opacity-50 disabled:cursor-not-allowed"
+                className="w-full py-2.5 px-4 bg-emerald-600 hover:bg-emerald-500 text-white rounded-lg text-sm font-medium transition-colors flex justify-center items-center gap-2 disabled:opacity-50 disabled:cursor-not-allowed shadow-sm"
               >
-                {isLoading ? "Memproses..." : "Masuk"}
-                {!isLoading && (
-                  <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M15 3h4a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2h-4"/><polyline points="10 17 15 12 10 7"/><line x1="15" x2="3" y1="12" y2="12"/></svg>
+                {isLoading ? (
+                  <>
+                    <Loader2 className="w-4 h-4 animate-spin" />
+                    <span>Memproses...</span>
+                  </>
+                ) : (
+                  <>
+                    <LogIn className="w-4 h-4" />
+                    <span>Masuk ke Dashboard</span>
+                  </>
                 )}
               </button>
             </div>
           </form>
+        </div>
+
+        {/* Back Link */}
+        <div className="text-center mt-6">
+          <Link
+            href="/"
+            className="inline-flex items-center gap-1.5 text-xs text-zinc-500 hover:text-zinc-300 transition-colors"
+          >
+            <ArrowLeft className="w-3.5 h-3.5" />
+            <span>Kembali ke Halaman Status Publik</span>
+          </Link>
         </div>
       </div>
     </div>

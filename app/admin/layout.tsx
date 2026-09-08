@@ -3,6 +3,15 @@
 import Link from "next/link";
 import { usePathname, useRouter } from "next/navigation";
 import { useState } from "react";
+import {
+  Activity,
+  AlertTriangle,
+  LogOut,
+  Menu,
+  X,
+  ExternalLink,
+  Plus,
+} from "lucide-react";
 
 export default function AdminLayout({
   children,
@@ -34,101 +43,135 @@ export default function AdminLayout({
   const isIncidentActive = pathname.startsWith("/admin/incidents");
 
   return (
-    <div className="min-h-screen bg-[#0F0F0F] text-[#e5e2e1] flex">
+    <div className="min-h-screen bg-[#09090b] text-[#f4f4f5] flex">
       {/* Desktop Sidebar */}
-      <aside className="hidden md:flex w-64 shrink-0 fixed left-0 top-0 h-screen flex-col border-r border-[#24292E] bg-[#0F0F0F] z-50 py-8">
+      <aside className="hidden md:flex w-64 shrink-0 fixed left-0 top-0 h-screen flex-col border-r border-[#27272a] bg-[#121215] z-50 py-6">
         <div className="px-6 mb-8">
-          <h1 className="text-2xl font-semibold text-[#606AF0]">StatusBoard</h1>
-          <p className="text-[10px] tracking-[0.2em] font-bold text-[#6A737D] mt-1 uppercase">
+          <div className="flex items-center gap-2">
+            <span className="w-2.5 h-2.5 rounded-full bg-emerald-500 animate-pulse" />
+            <h1 className="text-xl font-bold tracking-tight text-[#f4f4f5]">
+              StatusBoard
+            </h1>
+          </div>
+          <p className="text-[10px] tracking-[0.2em] font-semibold text-zinc-500 mt-1 uppercase font-mono">
             ADMIN PANEL
           </p>
         </div>
 
-        <nav className="flex-1 space-y-2 px-4">
+        <nav className="flex-1 space-y-1.5 px-3">
           <Link
             href="/admin"
-            className={`flex items-center gap-3 px-4 py-3 rounded-lg transition-colors ${
+            className={`flex items-center gap-3 px-3.5 py-2.5 rounded-lg text-sm transition-all ${
               isMonitorActive
-                ? "text-[#606AF0] font-bold bg-[#2a2a2a]"
-                : "text-[#c6c5d7] hover:bg-[#1c1b1b]"
+                ? "bg-emerald-500/10 text-emerald-400 border border-emerald-500/20 font-medium"
+                : "text-zinc-400 hover:text-zinc-200 hover:bg-zinc-800/40 border border-transparent"
             }`}
           >
-            <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><rect x="2" y="3" width="20" height="14" rx="2"/><path d="M8 21h8"/><path d="M12 17v4"/><path d="M7 10h2"/><path d="M15 10h2"/></svg>
-            <span className="text-sm font-semibold tracking-wider uppercase">Monitor</span>
+            <Activity className="w-4 h-4 shrink-0" />
+            <span>Monitors</span>
           </Link>
           <Link
             href="/admin/incidents"
-            className={`flex items-center gap-3 px-4 py-3 rounded-lg transition-colors ${
+            className={`flex items-center gap-3 px-3.5 py-2.5 rounded-lg text-sm transition-all ${
               isIncidentActive
-                ? "text-[#606AF0] font-bold bg-[#2a2a2a]"
-                : "text-[#c6c5d7] hover:bg-[#1c1b1b]"
+                ? "bg-emerald-500/10 text-emerald-400 border border-emerald-500/20 font-medium"
+                : "text-zinc-400 hover:text-zinc-200 hover:bg-zinc-800/40 border border-transparent"
             }`}
           >
-            <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="m21.73 18-8-14a2 2 0 0 0-3.48 0l-8 14A2 2 0 0 0 4 21h16a2 2 0 0 0 1.73-3"/><path d="M12 9v4"/><path d="M12 17h.01"/></svg>
-            <span className="text-sm font-semibold tracking-wider uppercase">Insiden</span>
+            <AlertTriangle className="w-4 h-4 shrink-0" />
+            <span>Incidents</span>
           </Link>
+
+          <div className="pt-4 mt-4 border-t border-[#27272a]/60">
+            <Link
+              href="/"
+              target="_blank"
+              rel="noopener noreferrer"
+              className="flex items-center justify-between px-3.5 py-2.5 rounded-lg text-sm text-zinc-400 hover:text-zinc-200 hover:bg-zinc-800/40 transition-all border border-transparent group"
+            >
+              <span className="flex items-center gap-2.5">
+                <ExternalLink className="w-4 h-4 text-zinc-500 group-hover:text-zinc-300" />
+                <span>Lihat Status Page</span>
+              </span>
+            </Link>
+          </div>
         </nav>
 
-        <div className="px-4 mt-auto border-t border-[#24292E] pt-4">
+        <div className="px-3 mt-auto border-t border-[#27272a] pt-4">
           <button
             onClick={handleLogout}
             disabled={loggingOut}
-            className="w-full flex items-center gap-3 px-4 py-3 rounded-lg text-[#c6c5d7] hover:text-[#E11D48] hover:bg-[#E11D48]/5 transition-all disabled:opacity-50"
+            className="w-full flex items-center gap-3 px-3.5 py-2.5 rounded-lg text-sm text-zinc-400 hover:text-rose-400 hover:bg-rose-500/10 transition-all disabled:opacity-50"
           >
-            <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"/><polyline points="16 17 21 12 16 7"/><line x1="21" x2="9" y1="12" y2="12"/></svg>
-            <span className="text-sm font-semibold tracking-wider uppercase">
-              {loggingOut ? "..." : "Keluar"}
-            </span>
+            <LogOut className="w-4 h-4 shrink-0" />
+            <span>{loggingOut ? "Memproses..." : "Keluar"}</span>
           </button>
         </div>
       </aside>
 
       {/* Mobile Drawer */}
       {mobileMenuOpen && (
-        <div className="fixed inset-0 z-50 bg-[#0F0F0F] flex flex-col p-6 md:hidden">
-          <div className="flex justify-between items-center mb-8">
-            <h1 className="text-xl font-bold text-[#606AF0]">StatusBoard</h1>
+        <div className="fixed inset-0 z-50 bg-[#09090b] flex flex-col p-6 md:hidden">
+          <div className="flex justify-between items-center mb-8 pb-4 border-b border-[#27272a]">
+            <div className="flex items-center gap-2">
+              <span className="w-2.5 h-2.5 rounded-full bg-emerald-500 animate-pulse" />
+              <h1 className="text-lg font-bold text-[#f4f4f5]">StatusBoard</h1>
+            </div>
             <button
               onClick={() => setMobileMenuOpen(false)}
-              className="text-[#c6c5d7] p-2"
+              className="text-zinc-400 hover:text-zinc-100 p-2 rounded-lg hover:bg-zinc-800/50 transition-colors"
               aria-label="Tutup menu"
             >
-              <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
+              <X className="w-5 h-5" />
             </button>
           </div>
-          <nav className="flex-1 space-y-4">
+          <nav className="flex-1 space-y-2">
             <Link
               href="/admin"
               onClick={() => setMobileMenuOpen(false)}
-              className={`flex items-center gap-3 px-4 py-3 rounded-lg ${
-                isMonitorActive ? "text-[#606AF0] font-bold bg-[#2a2a2a]" : "text-[#c6c5d7]"
+              className={`flex items-center gap-3 px-4 py-3 rounded-lg text-sm transition-all ${
+                isMonitorActive
+                  ? "bg-emerald-500/10 text-emerald-400 border border-emerald-500/20 font-medium"
+                  : "text-zinc-400 hover:text-zinc-200 hover:bg-zinc-800/40"
               }`}
             >
-              <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><rect x="2" y="3" width="20" height="14" rx="2"/><path d="M8 21h8"/><path d="M12 17v4"/></svg>
-              <span className="text-sm font-semibold tracking-wider uppercase">Monitor</span>
+              <Activity className="w-4 h-4 shrink-0" />
+              <span>Monitors</span>
             </Link>
             <Link
               href="/admin/incidents"
               onClick={() => setMobileMenuOpen(false)}
-              className={`flex items-center gap-3 px-4 py-3 rounded-lg ${
-                isIncidentActive ? "text-[#606AF0] font-bold bg-[#2a2a2a]" : "text-[#c6c5d7]"
+              className={`flex items-center gap-3 px-4 py-3 rounded-lg text-sm transition-all ${
+                isIncidentActive
+                  ? "bg-emerald-500/10 text-emerald-400 border border-emerald-500/20 font-medium"
+                  : "text-zinc-400 hover:text-zinc-200 hover:bg-zinc-800/40"
               }`}
             >
-              <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="m21.73 18-8-14a2 2 0 0 0-3.48 0l-8 14A2 2 0 0 0 4 21h16a2 2 0 0 0 1.73-3"/><path d="M12 9v4"/><path d="M12 17h.01"/></svg>
-              <span className="text-sm font-semibold tracking-wider uppercase">Insiden</span>
+              <AlertTriangle className="w-4 h-4 shrink-0" />
+              <span>Incidents</span>
+            </Link>
+            <Link
+              href="/"
+              target="_blank"
+              rel="noopener noreferrer"
+              onClick={() => setMobileMenuOpen(false)}
+              className="flex items-center gap-3 px-4 py-3 rounded-lg text-sm text-zinc-400 hover:text-zinc-200 hover:bg-zinc-800/40 transition-all"
+            >
+              <ExternalLink className="w-4 h-4 shrink-0" />
+              <span>Lihat Status Page</span>
             </Link>
           </nav>
-          <div className="border-t border-[#24292E] pt-4 mt-auto">
+          <div className="border-t border-[#27272a] pt-4 mt-auto">
             <button
               onClick={() => {
                 setMobileMenuOpen(false);
                 handleLogout();
               }}
               disabled={loggingOut}
-              className="w-full flex items-center gap-3 px-4 py-3 rounded-lg text-[#c6c5d7] hover:text-[#E11D48] hover:bg-[#E11D48]/5 transition-all"
+              className="w-full flex items-center gap-3 px-4 py-3 rounded-lg text-sm text-zinc-400 hover:text-rose-400 hover:bg-rose-500/10 transition-all"
             >
-              <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"/><polyline points="16 17 21 12 16 7"/><line x1="21" x2="9" y1="12" y2="12"/></svg>
-              <span className="text-sm font-semibold tracking-wider uppercase">{loggingOut ? "..." : "Keluar"}</span>
+              <LogOut className="w-4 h-4 shrink-0" />
+              <span>{loggingOut ? "Memproses..." : "Keluar"}</span>
             </button>
           </div>
         </div>
@@ -136,33 +179,45 @@ export default function AdminLayout({
 
       {/* Main Content Area */}
       <div className="flex-1 md:ml-64 flex flex-col min-h-screen">
-        <header className="sticky top-0 z-40 border-b border-[#24292E] bg-[#0F0F0F] flex items-center justify-between h-16 px-6">
+        <header className="sticky top-0 z-40 border-b border-[#27272a] bg-[#09090b]/80 backdrop-blur-md flex items-center justify-between h-16 px-6">
           <div className="flex items-center gap-3">
             <button
               onClick={() => setMobileMenuOpen(true)}
-              className="md:hidden text-[#c6c5d7] p-1 -ml-1 hover:text-[#bec2ff] transition-colors"
+              className="md:hidden text-zinc-400 p-1.5 -ml-1.5 hover:text-zinc-100 hover:bg-zinc-800/40 rounded-lg transition-colors"
               aria-label="Buka menu"
             >
-              <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><line x1="3" y1="12" x2="21" y2="12"/><line x1="3" y1="6" x2="21" y2="6"/><line x1="3" y1="18" x2="21" y2="18"/></svg>
+              <Menu className="w-5 h-5" />
             </button>
-            <h2 className="text-2xl font-semibold text-[#e5e2e1]">
+            <h2 className="text-xl font-bold tracking-tight text-[#f4f4f5]">
               {isIncidentActive ? "Insiden" : "Monitor"}
             </h2>
           </div>
-          <div className="flex items-center gap-4">
+          <div className="flex items-center gap-3">
+            <Link
+              href="/"
+              target="_blank"
+              rel="noopener noreferrer"
+              className="hidden sm:inline-flex items-center gap-1.5 px-3 py-1.5 text-xs font-medium text-zinc-400 hover:text-zinc-200 rounded-lg border border-[#27272a] hover:border-zinc-700 bg-[#121215] transition-colors"
+              title="Buka status page publik di tab baru"
+            >
+              <ExternalLink className="w-3.5 h-3.5" />
+              <span>Status Page</span>
+            </Link>
             {isIncidentActive ? (
               <Link
                 href="/admin/incidents/new"
-                className="bg-[#606AF0] hover:bg-[#5059d0] text-white px-5 py-2 rounded-lg text-sm font-medium transition-all flex items-center gap-2"
+                className="bg-emerald-600 hover:bg-emerald-500 text-white px-3.5 py-1.5 sm:px-4 sm:py-2 rounded-lg text-sm font-medium transition-colors flex items-center gap-2 shadow-sm"
               >
-                + Buat Insiden
+                <Plus className="w-4 h-4" />
+                <span>Buat Insiden</span>
               </Link>
             ) : (
               <Link
                 href="/admin/monitors/new"
-                className="bg-[#606AF0] hover:bg-[#5059d0] text-white px-5 py-2 rounded-lg text-sm font-medium transition-all flex items-center gap-2"
+                className="bg-emerald-600 hover:bg-emerald-500 text-white px-3.5 py-1.5 sm:px-4 sm:py-2 rounded-lg text-sm font-medium transition-colors flex items-center gap-2 shadow-sm"
               >
-                + Tambah Monitor
+                <Plus className="w-4 h-4" />
+                <span>Tambah Monitor</span>
               </Link>
             )}
           </div>
