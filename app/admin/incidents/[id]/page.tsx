@@ -54,7 +54,6 @@ export default function IncidentDetailPage({ params }: IncidentDetailPageProps) 
 
   const fetchData = useCallback(async () => {
     try {
-      setFetchError("");
       const [incRes, updatesRes] = await Promise.all([
         fetch("/api/incidents"),
         fetch(`/api/incidents/${id}/updates`),
@@ -73,6 +72,7 @@ export default function IncidentDetailPage({ params }: IncidentDetailPageProps) 
       }
 
       setIncident(inc);
+      setFetchError("");
 
       if (updatesRes.ok) {
         const updatesData = await updatesRes.json();
@@ -87,8 +87,51 @@ export default function IncidentDetailPage({ params }: IncidentDetailPageProps) 
   }, [id]);
 
   useEffect(() => {
-    fetchData();
-  }, [fetchData]);
+    let ignore = false;
+    async function init() {
+      try {
+        const [incRes, updatesRes] = await Promise.all([
+          fetch("/api/incidents"),
+          fetch(`/api/incidents/${id}/updates`),
+        ]);
+
+        if (ignore) return;
+        if (!incRes.ok) {
+          throw new Error("HTTP error: " + incRes.status);
+        }
+
+        const allIncidents = await incRes.json();
+        const inc = allIncidents.find((i: Incident) => i.id === id);
+        
+        if (!inc) {
+          setFetchError("Insiden tidak ditemukan");
+          return;
+        }
+
+        setIncident(inc);
+        setFetchError("");
+
+        if (updatesRes.ok) {
+          const updatesData = await updatesRes.json();
+          setUpdates(Array.isArray(updatesData) ? updatesData : []);
+        }
+      } catch (err) {
+        console.error("fetchData error:", err);
+        if (!ignore) {
+          setFetchError("Gagal memuat detail insiden. Pastikan database aktif.");
+        }
+      } finally {
+        if (!ignore) {
+          setLoading(false);
+        }
+      }
+    }
+
+    init();
+    return () => {
+      ignore = true;
+    };
+  }, [id]);
 
   const handleAddUpdate = async (e: FormEvent<HTMLFormElement>) => {
     e.preventDefault();

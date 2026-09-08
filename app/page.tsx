@@ -1,26 +1,76 @@
 import { db } from "@/lib/db";
 import { monitors, incidents, incidentUpdates } from "@/lib/db/schema";
-import { eq, desc, and, isNull, isNotNull } from "drizzle-orm";
+import { eq, desc, isNull, isNotNull } from "drizzle-orm";
 import { calculateUptime } from "@/lib/uptime";
+import type {
+  DailyHeartbeat,
+  MonitorWithUptime,
+  MonitorWithHeartbeat,
+  IncidentWithUpdates,
+} from "@/lib/types/status";
 
-interface MonitorWithUptime {
-  id: string;
-  name: string;
-  currentStatus: string;
-  uptime24h: number;
-  uptime7d: number;
-  uptime30d: number;
-}
+function generateMockHeartbeats(
+  type: "healthy" | "intermittent" | "degraded_today"
+): DailyHeartbeat[] {
+  const heartbeats: DailyHeartbeat[] = [];
+  const now = new Date();
 
-interface IncidentWithUpdates {
-  id: string;
-  title: string;
-  severity: string;
-  status: string;
-  createdAt: Date;
-  resolvedAt: Date | null;
-  monitorName: string | null;
-  updates: { status: string; message: string; createdAt: Date }[];
+  for (let i = 89; i >= 0; i--) {
+    const d = new Date(now.getTime() - i * 24 * 60 * 60 * 1000);
+    const dateStr = d.toISOString().split("T")[0];
+
+    if (type === "healthy") {
+      const isOccasionalDegraded = i === 42 || i === 71;
+      const uptimePct = isOccasionalDegraded ? 99.6 : 100;
+      const status = isOccasionalDegraded ? "degraded" : "up";
+      const avgLatencyMs = 45 + ((i * 3) % 20);
+      heartbeats.push({
+        date: dateStr,
+        status,
+        uptimePct,
+        avgLatencyMs,
+      });
+    } else if (type === "intermittent") {
+      const isMaintenance = i === 2;
+      const isDegraded = i === 28 || i === 55;
+      const status = isMaintenance || isDegraded ? "degraded" : "up";
+      const uptimePct = isMaintenance ? 98.5 : isDegraded ? 99.2 : 100;
+      const avgLatencyMs = 95 + ((i * 7) % 35);
+      heartbeats.push({
+        date: dateStr,
+        status,
+        uptimePct,
+        avgLatencyMs,
+      });
+    } else {
+      let status: "up" | "degraded" | "down" = "up";
+      let uptimePct = 100;
+      let avgLatencyMs: number | null = 110 + ((i * 5) % 30);
+
+      if (i === 0) {
+        status = "down";
+        uptimePct = 95.2;
+        avgLatencyMs = null;
+      } else if (i === 1) {
+        status = "degraded";
+        uptimePct = 98.1;
+        avgLatencyMs = 380;
+      } else if (i === 14) {
+        status = "degraded";
+        uptimePct = 99.1;
+        avgLatencyMs = 210;
+      }
+
+      heartbeats.push({
+        date: dateStr,
+        status,
+        uptimePct,
+        avgLatencyMs,
+      });
+    }
+  }
+
+  return heartbeats;
 }
 
 async function getStatusData() {
@@ -30,7 +80,7 @@ async function getStatusData() {
       .from(monitors)
       .where(eq(monitors.isActive, true));
 
-    const monitorsWithUptime: MonitorWithUptime[] = await Promise.all(
+    const monitorsWithUptime: MonitorWithHeartbeat[] = await Promise.all(
       activeMonitors.map(async (m) => ({
         id: m.id,
         name: m.name,
@@ -101,10 +151,40 @@ async function getStatusData() {
     const twoDaysAgo = new Date(now.getTime() - 2 * 24 * 60 * 60 * 1000);
     const fiveHoursAgo = new Date(now.getTime() - 5 * 60 * 60 * 1000);
 
-    const mockMonitors: MonitorWithUptime[] = [
-      { id: "mock-1", name: "Main Website", currentStatus: "up", uptime24h: 100, uptime7d: 99.95, uptime30d: 99.92 },
-      { id: "mock-2", name: "API Server", currentStatus: "up", uptime24h: 99.8, uptime7d: 99.7, uptime30d: 99.5 },
-      { id: "mock-3", name: "Auth Service", currentStatus: "down", uptime24h: 95.2, uptime7d: 98.1, uptime30d: 99.0 },
+    const mockMonitors: MonitorWithHeartbeat[] = [
+      {
+        id: "mock-1",
+        name: "Main Website",
+        url: "https://aji.dev",
+        currentStatus: "up",
+        uptime24h: 100,
+        uptime7d: 99.95,
+        uptime30d: 99.92,
+        avgLatencyMs: 52,
+        heartbeats: generateMockHeartbeats("healthy"),
+      },
+      {
+        id: "mock-2",
+        name: "API Server",
+        url: "https://api.aji.dev/health",
+        currentStatus: "up",
+        uptime24h: 99.8,
+        uptime7d: 99.7,
+        uptime30d: 99.5,
+        avgLatencyMs: 118,
+        heartbeats: generateMockHeartbeats("intermittent"),
+      },
+      {
+        id: "mock-3",
+        name: "Auth Service",
+        url: "https://auth.aji.dev/health",
+        currentStatus: "down",
+        uptime24h: 95.2,
+        uptime7d: 98.1,
+        uptime30d: 99.0,
+        avgLatencyMs: 420,
+        heartbeats: generateMockHeartbeats("degraded_today"),
+      },
     ];
 
     const mockActiveIncidents: IncidentWithUpdates[] = [
