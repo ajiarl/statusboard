@@ -70,7 +70,7 @@ export async function checkMonitor(monitor: Monitor): Promise<CheckResult> {
     const responseTimeMs = Math.round(performance.now() - start);
     let status: "up" | "down" | "degraded";
     if (lastResponseStatus === monitor.expectedStatus) {
-      status = responseTimeMs > 3000 ? "degraded" : "up";
+      status = responseTimeMs > 5000 ? "degraded" : "up";
     } else {
       status = "down";
     }

@@ -13,7 +13,7 @@ export async function calculateUptime(
     .select({
       total: count(),
       up: count(
-        sql`CASE WHEN ${checks.status} = 'up' THEN 1 END`
+        sql`CASE WHEN ${checks.status} != 'down' THEN 1 END`
       ),
     })
     .from(checks)
@@ -105,12 +105,12 @@ export async function calculateDailyHeartbeats(
         avgLatencyMs: null,
       });
     } else {
-      const uptimePct = Math.round((data.up / data.total) * 10000) / 100;
+      const uptimePct = Math.round(((data.up + data.degraded) / data.total) * 10000) / 100;
       let status: HeartbeatStatus = "up";
       if (data.down > 0) {
-        status = data.up === 0 ? "down" : "degraded";
+        status = (data.up + data.degraded) === 0 ? "down" : "degraded";
       } else if (data.degraded > 0) {
-        status = "degraded";
+        status = (data.degraded / data.total) >= 0.5 ? "degraded" : "up";
       }
 
       heartbeats.push({
