@@ -1,5 +1,5 @@
-import path from "path";
-import dotenv from "dotenv";
+import * as path from "path";
+import * as dotenv from "dotenv";
 
 // Load environment variables from .env.local and .env
 dotenv.config({ path: path.resolve(process.cwd(), ".env.local") });
@@ -8,48 +8,37 @@ dotenv.config({ path: path.resolve(process.cwd(), ".env") });
 import postgres from "postgres";
 import { drizzle } from "drizzle-orm/postgres-js";
 import { eq } from "drizzle-orm";
-import { monitors } from "../lib/db/schema";
+import { monitors, checks } from "../lib/db/schema";
+import { checkMonitor } from "../lib/check";
 
 export const REAL_MONITORS = [
   {
     name: "Portfolio Utama",
     url: "https://ajiarlando.my.id",
-    method: "GET",
+    method: "GET" as const,
     expectedStatus: 200,
     isActive: true,
-    currentStatus: "up",
   },
   {
     name: "Snip URL Shortener",
-    url: "https://snip.ajiarlando.my.id",
-    method: "GET",
+    url: "https://snipid.my.id",
+    method: "GET" as const,
     expectedStatus: 200,
     isActive: true,
-    currentStatus: "up",
   },
   {
-    name: "SiMagang Platform",
-    url: "https://simagang.ajiarlando.my.id",
-    method: "GET",
+    name: "JIERjoki Service",
+    url: "https://web-joki-tugas.vercel.app",
+    method: "GET" as const,
     expectedStatus: 200,
     isActive: true,
-    currentStatus: "up",
   },
   {
-    name: "Finance Tracker Service",
-    url: "https://finance.ajiarlando.my.id",
-    method: "GET",
+    name: "KosPedia Palembang",
+    url: "https://kospedia-palembang.vercel.app",
+    method: "GET" as const,
     expectedStatus: 200,
     isActive: true,
-    currentStatus: "up",
-  },
-  {
-    name: "KosPedia API",
-    url: "https://kospedia.ajiarlando.my.id",
-    method: "GET",
-    expectedStatus: 200,
-    isActive: true,
-    currentStatus: "up",
   },
 ];
 
@@ -71,6 +60,8 @@ async function seed() {
     let existingCount = 0;
 
     for (const item of REAL_MONITORS) {
+      let monitorId: string;
+
       const [existing] = await db
         .select()
         .from(monitors)
@@ -78,18 +69,23 @@ async function seed() {
         .limit(1);
 
       if (!existing) {
-        await db.insert(monitors).values({
-          name: item.name,
-          url: item.url,
-          method: item.method,
-          expectedStatus: item.expectedStatus,
-          isActive: item.isActive,
-          currentStatus: item.currentStatus,
-          consecutiveFailures: 0,
-        });
-        console.log(`  ✓ Inserted: ${item.name} (${item.url})`);
+        const [inserted] = await db
+          .insert(monitors)
+          .values({
+            name: item.name,
+            url: item.url,
+            method: item.method,
+            expectedStatus: item.expectedStatus,
+            isActive: item.isActive,
+            currentStatus: "up",
+            consecutiveFailures: 0,
+          })
+          .returning({ id: monitors.id });
+        monitorId = inserted.id;
+        console.log(`  ✓ Inserted monitor: ${item.name} (${item.url})`);
         insertedCount++;
       } else {
+        monitorId = existing.id;
         await db
           .update(monitors)
           .set({
@@ -99,13 +95,51 @@ async function seed() {
             isActive: item.isActive,
           })
           .where(eq(monitors.id, existing.id));
-        console.log(`  ↺ Updated/Verified: ${item.name} (${item.url})`);
+        console.log(`  ↺ Verified monitor: ${item.name} (${item.url})`);
         existingCount++;
+      }
+
+      // Jalankan initial real ping HTTP dan simpan check pertama
+      try {
+        const checkResult = await checkMonitor({
+          id: monitorId,
+          name: item.name,
+          url: item.url,
+          method: item.method,
+          expectedStatus: item.expectedStatus,
+          isActive: item.isActive,
+          currentStatus: "up",
+          consecutiveFailures: 0,
+          lastCheckedAt: null,
+          createdAt: new Date(),
+        });
+
+        await db.insert(checks).values({
+          monitorId,
+          status: checkResult.status,
+          statusCode: checkResult.statusCode,
+          responseTimeMs: checkResult.responseTimeMs,
+        });
+
+        await db
+          .update(monitors)
+          .set({
+            currentStatus: checkResult.status,
+            lastCheckedAt: new Date(),
+          })
+          .where(eq(monitors.id, monitorId));
+
+        console.log(
+          `    ↳ Live check: ${checkResult.status.toUpperCase()} (${checkResult.responseTimeMs}ms, status: ${checkResult.statusCode})`
+        );
+      } catch (err: unknown) {
+        const msg = err instanceof Error ? err.message : String(err);
+        console.warn(`    ⚠ Initial ping failed for ${item.name}: ${msg}`);
       }
     }
 
     console.log(
-      `\n✅ Seeding complete: ${insertedCount} inserted, ${existingCount} verified/updated. Total 5 real monitors.`
+      `\n✅ Seeding complete: ${insertedCount} inserted, ${existingCount} verified/updated. Real telemetry recorded.`
     );
   } catch (error) {
     console.error("❌ Seeding failed with error:", error);

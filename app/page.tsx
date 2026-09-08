@@ -1,9 +1,8 @@
 import { db } from "@/lib/db";
 import { monitors, incidents, incidentUpdates } from "@/lib/db/schema";
 import { eq, desc, isNull, isNotNull } from "drizzle-orm";
-import { calculateUptime } from "@/lib/uptime";
+import { calculateUptime, calculateDailyHeartbeats } from "@/lib/uptime";
 import type {
-  DailyHeartbeat,
   MonitorWithHeartbeat,
   IncidentWithUpdates,
   OverallSystemStatus,
@@ -14,73 +13,16 @@ import { ActiveIncidentCard } from "@/components/ActiveIncidentCard";
 import { MonitorCard } from "@/components/MonitorCard";
 import { IncidentHistory } from "@/components/IncidentHistory";
 import { StatusFooter } from "@/components/StatusFooter";
-import { ShieldAlert } from "lucide-react";
+import { ShieldAlert, AlertTriangle } from "lucide-react";
 
-function generateMockHeartbeats(
-  type: "healthy" | "intermittent" | "degraded_today"
-): DailyHeartbeat[] {
-  const heartbeats: DailyHeartbeat[] = [];
-  const now = new Date();
-
-  for (let i = 89; i >= 0; i--) {
-    const d = new Date(now.getTime() - i * 24 * 60 * 60 * 1000);
-    const dateStr = d.toISOString().split("T")[0];
-
-    if (type === "healthy") {
-      const isOccasionalDegraded = i === 42 || i === 71;
-      const uptimePct = isOccasionalDegraded ? 99.6 : 100;
-      const status = isOccasionalDegraded ? "degraded" : "up";
-      const avgLatencyMs = 45 + ((i * 3) % 20);
-      heartbeats.push({
-        date: dateStr,
-        status,
-        uptimePct,
-        avgLatencyMs,
-      });
-    } else if (type === "intermittent") {
-      const isMaintenance = i === 2;
-      const isDegraded = i === 28 || i === 55;
-      const status = isMaintenance || isDegraded ? "degraded" : "up";
-      const uptimePct = isMaintenance ? 98.5 : isDegraded ? 99.2 : 100;
-      const avgLatencyMs = 95 + ((i * 7) % 35);
-      heartbeats.push({
-        date: dateStr,
-        status,
-        uptimePct,
-        avgLatencyMs,
-      });
-    } else {
-      let status: "up" | "degraded" | "down" = "up";
-      let uptimePct = 100;
-      let avgLatencyMs: number | null = 110 + ((i * 5) % 30);
-
-      if (i === 0) {
-        status = "down";
-        uptimePct = 95.2;
-        avgLatencyMs = null;
-      } else if (i === 1) {
-        status = "degraded";
-        uptimePct = 98.1;
-        avgLatencyMs = 380;
-      } else if (i === 14) {
-        status = "degraded";
-        uptimePct = 99.1;
-        avgLatencyMs = 210;
-      }
-
-      heartbeats.push({
-        date: dateStr,
-        status,
-        uptimePct,
-        avgLatencyMs,
-      });
-    }
-  }
-
-  return heartbeats;
+interface StatusDataResult {
+  monitors: MonitorWithHeartbeat[];
+  activeIncidents: IncidentWithUpdates[];
+  resolvedIncidents: IncidentWithUpdates[];
+  isDbOffline: boolean;
 }
 
-async function getStatusData() {
+async function getStatusData(): Promise<StatusDataResult> {
   try {
     const activeMonitors = await db
       .select()
@@ -88,15 +30,20 @@ async function getStatusData() {
       .where(eq(monitors.isActive, true));
 
     const monitorsWithUptime: MonitorWithHeartbeat[] = await Promise.all(
-      activeMonitors.map(async (m) => ({
-        id: m.id,
-        name: m.name,
-        url: m.url ?? undefined,
-        currentStatus: m.currentStatus,
-        uptime24h: await calculateUptime(m.id, 24),
-        uptime7d: await calculateUptime(m.id, 168),
-        uptime30d: await calculateUptime(m.id, 720),
-      }))
+      activeMonitors.map(async (m) => {
+        const { heartbeats, avgLatencyMs } = await calculateDailyHeartbeats(m.id, 90);
+        return {
+          id: m.id,
+          name: m.name,
+          url: m.url ?? undefined,
+          currentStatus: m.currentStatus,
+          uptime24h: await calculateUptime(m.id, 24),
+          uptime7d: await calculateUptime(m.id, 168),
+          uptime30d: await calculateUptime(m.id, 720),
+          avgLatencyMs,
+          heartbeats,
+        };
+      })
     );
 
     const activeIncidents = await db
@@ -152,99 +99,71 @@ async function getStatusData() {
       monitors: monitorsWithUptime,
       activeIncidents: incidentsWithUpdates.filter((i) => !i.resolvedAt),
       resolvedIncidents: incidentsWithUpdates.filter((i) => i.resolvedAt),
+      isDbOffline: false,
     };
   } catch {
-    // Fallback mock data bila database offline/belum terhubung
-    const twoDaysAgo = new Date(Date.now() - 2 * 24 * 60 * 60 * 1000);
-
-    const mockMonitors: MonitorWithHeartbeat[] = [
+    // Database offline/unreachable: tampilkan daftar 4 service riil portofolio secara transparan
+    const initialRealMonitors: MonitorWithHeartbeat[] = [
       {
-        id: "mock-1",
+        id: "real-1",
         name: "Portfolio Utama",
         url: "https://ajiarlando.my.id",
-        currentStatus: "up",
-        uptime24h: 100,
-        uptime7d: 99.98,
-        uptime30d: 99.95,
-        avgLatencyMs: 64,
-        heartbeats: generateMockHeartbeats("healthy"),
+        currentStatus: "unknown",
+        uptime24h: 0,
+        uptime7d: 0,
+        uptime30d: 0,
+        avgLatencyMs: null,
+        heartbeats: [],
       },
       {
-        id: "mock-2",
+        id: "real-2",
         name: "Snip URL Shortener",
-        url: "https://snip.ajiarlando.my.id",
-        currentStatus: "up",
-        uptime24h: 100,
-        uptime7d: 99.95,
-        uptime30d: 99.91,
-        avgLatencyMs: 92,
-        heartbeats: generateMockHeartbeats("healthy"),
+        url: "https://snipid.my.id",
+        currentStatus: "unknown",
+        uptime24h: 0,
+        uptime7d: 0,
+        uptime30d: 0,
+        avgLatencyMs: null,
+        heartbeats: [],
       },
       {
-        id: "mock-3",
-        name: "SiMagang Platform",
-        url: "https://simagang.ajiarlando.my.id",
-        currentStatus: "up",
-        uptime24h: 99.8,
-        uptime7d: 99.7,
-        uptime30d: 99.5,
-        avgLatencyMs: 125,
-        heartbeats: generateMockHeartbeats("intermittent"),
+        id: "real-3",
+        name: "JIERjoki Service",
+        url: "https://web-joki-tugas.vercel.app",
+        currentStatus: "unknown",
+        uptime24h: 0,
+        uptime7d: 0,
+        uptime30d: 0,
+        avgLatencyMs: null,
+        heartbeats: [],
       },
       {
-        id: "mock-4",
-        name: "Finance Tracker Service",
-        url: "https://finance.ajiarlando.my.id",
-        currentStatus: "up",
-        uptime24h: 100,
-        uptime7d: 99.92,
-        uptime30d: 99.88,
-        avgLatencyMs: 110,
-        heartbeats: generateMockHeartbeats("healthy"),
-      },
-      {
-        id: "mock-5",
-        name: "KosPedia API",
-        url: "https://kospedia.ajiarlando.my.id",
-        currentStatus: "up",
-        uptime24h: 99.6,
-        uptime7d: 99.4,
-        uptime30d: 99.1,
-        avgLatencyMs: 148,
-        heartbeats: generateMockHeartbeats("healthy"),
-      },
-    ];
-
-    const mockActiveIncidents: IncidentWithUpdates[] = [];
-
-    const mockResolvedIncidents: IncidentWithUpdates[] = [
-      {
-        id: "mock-inc-1",
-        title: "Scheduled database connection pool optimization",
-        severity: "minor",
-        status: "resolved",
-        createdAt: twoDaysAgo,
-        resolvedAt: new Date(twoDaysAgo.getTime() + 45 * 60 * 1000),
-        monitorName: "SiMagang Platform",
-        updates: [
-          {
-            status: "resolved",
-            message: "Pemeliharaan indeks dan optimasi connection pool selesai. Latensi kembali stabil.",
-            createdAt: new Date(twoDaysAgo.getTime() + 45 * 60 * 1000),
-          },
-        ],
+        id: "real-4",
+        name: "KosPedia Palembang",
+        url: "https://kospedia-palembang.vercel.app",
+        currentStatus: "unknown",
+        uptime24h: 0,
+        uptime7d: 0,
+        uptime30d: 0,
+        avgLatencyMs: null,
+        heartbeats: [],
       },
     ];
 
     return {
-      monitors: mockMonitors,
-      activeIncidents: mockActiveIncidents,
-      resolvedIncidents: mockResolvedIncidents,
+      monitors: initialRealMonitors,
+      activeIncidents: [],
+      resolvedIncidents: [],
+      isDbOffline: true,
     };
   }
 }
 
-function getOverallStatus(monitorsList: MonitorWithHeartbeat[]): OverallSystemStatus {
+function getOverallStatus(
+  monitorsList: MonitorWithHeartbeat[],
+  isDbOffline: boolean
+): OverallSystemStatus {
+  if (isDbOffline) return "degraded";
   if (monitorsList.length === 0) return "unknown";
   const hasDown = monitorsList.some((m) => m.currentStatus === "down");
   if (hasDown) return "down";
@@ -256,10 +175,10 @@ function getOverallStatus(monitorsList: MonitorWithHeartbeat[]): OverallSystemSt
 export const dynamic = "force-dynamic";
 
 export default async function StatusPage() {
-  const { monitors: monitorsList, activeIncidents, resolvedIncidents } =
+  const { monitors: monitorsList, activeIncidents, resolvedIncidents, isDbOffline } =
     await getStatusData();
 
-  const overall = getOverallStatus(monitorsList);
+  const overall = getOverallStatus(monitorsList, isDbOffline);
   const downMonitors = monitorsList.filter((m) => m.currentStatus === "down");
   const degradedMonitors = monitorsList.filter((m) => m.currentStatus === "degraded");
   const downServiceName = downMonitors.length > 0 ? downMonitors[0].name : null;
@@ -267,10 +186,25 @@ export default async function StatusPage() {
   return (
     <div className="min-h-screen bg-[#09090b] text-zinc-100 flex flex-col font-sans selection:bg-emerald-500/20 selection:text-emerald-300">
       {/* 1. Global Navigation Header */}
-      <StatusHeader updatedAtText="Updated recently" />
+      <StatusHeader updatedAtText={isDbOffline ? "Telemetri Offline" : "Live"} />
 
       {/* 2. Main Content Area */}
       <main className="flex-grow w-full max-w-5xl mx-auto px-4 sm:px-6 py-8 md:py-10 flex flex-col gap-8">
+        {/* Transparent Offline Notice if DB is disconnected */}
+        {isDbOffline && (
+          <div className="bg-amber-500/10 border border-amber-500/25 text-amber-300 rounded-2xl p-4 sm:p-5 text-xs sm:text-sm flex items-start gap-3.5 shadow-sm">
+            <AlertTriangle className="w-5 h-5 text-amber-400 shrink-0 mt-0.5" />
+            <div className="flex flex-col gap-1">
+              <span className="font-semibold text-amber-200 text-sm">
+                Database Telemetri Sedang Tidak Terhubung
+              </span>
+              <p className="text-amber-300/80 leading-relaxed">
+                Koneksi ke Supabase sedang terputus (project mungkin sedang di-pause). Daftar di bawah menampilkan 4 layanan rill portofolio Aji Arlando, namun riwayat uptime 90 hari membutuhkan koneksi database aktif.
+              </p>
+            </div>
+          </div>
+        )}
+
         {/* Dynamic Status Hero Banner */}
         <StatusHeroBanner
           status={overall}
