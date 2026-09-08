@@ -87,9 +87,12 @@ StatusBoard adalah platform status page sederhana, open source, dan self-hostabl
 
 ---
 
-## Definition of Done per Task
+## Definition of Done per Task (Full Engineering Gate)
 - [ ] Implementasi kode memenuhi Acceptance Criteria dari task spec.
+- [ ] Security Gate (/security): Lolos `security-review`, audit dependency (`npm audit`) bersih dari CVE High/Critical, proteksi SSRF dan boundary auth aman.
+- [ ] Data Integrity Gate (/devpractice): ZERO hallucinated data. Dilarang menggunakan domain fiktif (`aji.dev`, `test.com`). Wajib menggunakan data rill ekosistem Aji (Portfolio, Snip, SiMagang, Finance Tracker, KosPedia) atau script database seeder rill.
+- [ ] Maintenance Gate (/maintenance): audit dependency selesai, tidak ada packages usang atau rawan.
 - [ ] Styling dan komponen mematuhi pedoman visual di `docs/REDESIGN_BRIEF.md`.
-- [ ] Build Next.js (`npm run build` atau `npx tsc --noEmit`) berhasil tanpa error typescript / linting blocking.
-- [ ] Sanity check lokal memastikan halaman render dengan benar (termasuk saat menggunakan fallback mock data).
-- [ ] Laporan medium terkirim lengkap ke kanban comment.
+- [ ] Build Next.js (`npm run build` dan `npx tsc --noEmit`) berhasil 100% tanpa error typescript / linting.
+- [ ] Sanity check lokal memastikan halaman render dengan benar.
+- [ ] Laporan medium terkirim lengkap ke kanban comment dan Telegram @senaAssisBot.
