@@ -48,7 +48,7 @@ export async function PATCH(request: NextRequest, { params }: RouteParams) {
       if (typeof body.url !== "string") {
         return NextResponse.json({ error: "Invalid URL" }, { status: 400 });
       }
-      if (isPrivateUrl(body.url)) {
+      if (await isPrivateUrl(body.url)) {
         return NextResponse.json(
           { error: "Private/internal URLs are not allowed" },
           { status: 400 }

@@ -155,78 +155,81 @@ async function getStatusData() {
     };
   } catch {
     // Fallback mock data bila database offline/belum terhubung
-    const now = new Date();
-    const twoDaysAgo = new Date(now.getTime() - 2 * 24 * 60 * 60 * 1000);
-    const fiveHoursAgo = new Date(now.getTime() - 5 * 60 * 60 * 1000);
+    const twoDaysAgo = new Date(Date.now() - 2 * 24 * 60 * 60 * 1000);
 
     const mockMonitors: MonitorWithHeartbeat[] = [
       {
         id: "mock-1",
-        name: "Main Website",
-        url: "https://aji.dev",
+        name: "Portfolio Utama",
+        url: "https://ajiarlando.my.id",
         currentStatus: "up",
         uptime24h: 100,
-        uptime7d: 99.95,
-        uptime30d: 99.92,
-        avgLatencyMs: 52,
+        uptime7d: 99.98,
+        uptime30d: 99.95,
+        avgLatencyMs: 64,
         heartbeats: generateMockHeartbeats("healthy"),
       },
       {
         id: "mock-2",
-        name: "API Server",
-        url: "https://api.aji.dev/health",
+        name: "Snip URL Shortener",
+        url: "https://snip.ajiarlando.my.id",
+        currentStatus: "up",
+        uptime24h: 100,
+        uptime7d: 99.95,
+        uptime30d: 99.91,
+        avgLatencyMs: 92,
+        heartbeats: generateMockHeartbeats("healthy"),
+      },
+      {
+        id: "mock-3",
+        name: "SiMagang Platform",
+        url: "https://simagang.ajiarlando.my.id",
         currentStatus: "up",
         uptime24h: 99.8,
         uptime7d: 99.7,
         uptime30d: 99.5,
-        avgLatencyMs: 118,
+        avgLatencyMs: 125,
         heartbeats: generateMockHeartbeats("intermittent"),
       },
       {
-        id: "mock-3",
-        name: "Auth Service",
-        url: "https://auth.aji.dev/health",
-        currentStatus: "down",
-        uptime24h: 95.2,
-        uptime7d: 98.1,
-        uptime30d: 99.0,
-        avgLatencyMs: 420,
-        heartbeats: generateMockHeartbeats("degraded_today"),
+        id: "mock-4",
+        name: "Finance Tracker Service",
+        url: "https://finance.ajiarlando.my.id",
+        currentStatus: "up",
+        uptime24h: 100,
+        uptime7d: 99.92,
+        uptime30d: 99.88,
+        avgLatencyMs: 110,
+        heartbeats: generateMockHeartbeats("healthy"),
+      },
+      {
+        id: "mock-5",
+        name: "KosPedia API",
+        url: "https://kospedia.ajiarlando.my.id",
+        currentStatus: "up",
+        uptime24h: 99.6,
+        uptime7d: 99.4,
+        uptime30d: 99.1,
+        avgLatencyMs: 148,
+        heartbeats: generateMockHeartbeats("healthy"),
       },
     ];
 
-    const mockActiveIncidents: IncidentWithUpdates[] = [
-      {
-        id: "mock-inc-1",
-        title: "Auth Service elevated error rates",
-        severity: "major",
-        status: "investigating",
-        createdAt: fiveHoursAgo,
-        resolvedAt: null,
-        monitorName: "Auth Service",
-        updates: [
-          {
-            status: "investigating",
-            message: "Kami sedang menginvestigasi peningkatan respon error 5xx pada Auth Service.",
-            createdAt: fiveHoursAgo,
-          },
-        ],
-      },
-    ];
+    const mockActiveIncidents: IncidentWithUpdates[] = [];
 
     const mockResolvedIncidents: IncidentWithUpdates[] = [
       {
-        id: "mock-inc-2",
-        title: "Scheduled database maintenance",
+        id: "mock-inc-1",
+        title: "Scheduled database connection pool optimization",
         severity: "minor",
         status: "resolved",
         createdAt: twoDaysAgo,
         resolvedAt: new Date(twoDaysAgo.getTime() + 45 * 60 * 1000),
-        monitorName: "API Server",
+        monitorName: "SiMagang Platform",
         updates: [
           {
             status: "resolved",
-            message: "Pemeliharaan indeks database selesai. Latensi kembali normal.",
+            message: "Pemeliharaan indeks dan optimasi connection pool selesai. Latensi kembali stabil.",
             createdAt: new Date(twoDaysAgo.getTime() + 45 * 60 * 1000),
           },
         ],

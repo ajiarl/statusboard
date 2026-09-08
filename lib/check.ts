@@ -25,7 +25,7 @@ export async function checkMonitor(monitor: Monitor): Promise<CheckResult> {
     let currentMethod = monitor.method;
 
     while (true) {
-      if (isPrivateUrl(currentUrl)) {
+      if (await isPrivateUrl(currentUrl)) {
         const responseTimeMs = Math.round(performance.now() - start);
         return { status: "down", statusCode: lastResponseStatus, responseTimeMs };
       }

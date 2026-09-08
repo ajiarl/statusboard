@@ -31,7 +31,7 @@ export async function POST(request: NextRequest) {
     return NextResponse.json({ error: "URL is required" }, { status: 400 });
   }
 
-  if (isPrivateUrl(url)) {
+  if (await isPrivateUrl(url)) {
     return NextResponse.json(
       { error: "Private/internal URLs are not allowed" },
       { status: 400 }

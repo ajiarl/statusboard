@@ -1,5 +1,6 @@
 import { URL } from "url";
 import { isIP } from "net";
+import * as dns from "node:dns";
 
 const PRIVATE_IPV4_RANGES = [
   /^127\./,
@@ -8,6 +9,8 @@ const PRIVATE_IPV4_RANGES = [
   /^192\.168\./,
   /^0\./,
   /^169\.254\./,
+  /^100\.(6[4-9]|[7-9]\d|1[01]\d|12[0-7])\./,
+  /^198\.(1[89])\./,
 ];
 
 const PRIVATE_IPV6_RANGES = [
@@ -57,15 +60,15 @@ function parseOctalIP(s: string): string | null {
   return nums.join(".");
 }
 
-function isPrivateIPv4(ip: string): boolean {
+export function isPrivateIPv4(ip: string): boolean {
   return PRIVATE_IPV4_RANGES.some((r) => r.test(ip));
 }
 
-function isPrivateIPv6(ip: string): boolean {
+export function isPrivateIPv6(ip: string): boolean {
   return PRIVATE_IPV6_RANGES.some((r) => r.test(ip));
 }
 
-function isPrivateIP(ip: string): boolean {
+export function isPrivateIP(ip: string): boolean {
   const mapped = normalizeIP(ip);
   if (mapped) return isPrivateIPv4(mapped);
 
@@ -84,7 +87,7 @@ function isPrivateIP(ip: string): boolean {
   return false;
 }
 
-export function isPrivateUrl(rawUrl: string): boolean {
+export function isPrivateUrlSync(rawUrl: string): boolean {
   let parsed: URL;
   try {
     parsed = new URL(rawUrl);
@@ -107,4 +110,46 @@ export function isPrivateUrl(rawUrl: string): boolean {
   }
 
   return isPrivateIP(hostname);
+}
+
+/**
+ * Validates a URL against SSRF and DNS rebinding attacks.
+ * Performs syntactic validation and asynchronous DNS resolution lookup
+ * to ensure the hostname does not resolve to private or loopback IP addresses.
+ */
+export async function isPrivateUrl(rawUrl: string): Promise<boolean> {
+  if (isPrivateUrlSync(rawUrl)) {
+    return true;
+  }
+
+  let parsed: URL;
+  try {
+    parsed = new URL(rawUrl);
+  } catch {
+    return true;
+  }
+
+  const hostname = parsed.hostname.replace(/^\[|\]$/g, "");
+
+  if (isIP(hostname)) {
+    return isPrivateIP(hostname);
+  }
+
+  try {
+    const addresses = await dns.promises.lookup(hostname, { all: true });
+    if (!addresses || addresses.length === 0) {
+      return false;
+    }
+
+    for (const record of addresses) {
+      if (isPrivateIP(record.address)) {
+        return true;
+      }
+    }
+  } catch {
+    // DNS resolution failure (ENOTFOUND/EAI_AGAIN) is handled during HTTP fetch
+    return false;
+  }
+
+  return false;
 }

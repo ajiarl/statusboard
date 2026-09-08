@@ -2,6 +2,7 @@ import { NextRequest, NextResponse } from "next/server";
 import { db } from "@/lib/db";
 import { monitors, checks } from "@/lib/db/schema";
 import { checkMonitor } from "@/lib/check";
+import { isPrivateUrl } from "@/lib/ssrf";
 import { eq, lt } from "drizzle-orm";
 
 export async function GET(request: NextRequest) {
@@ -22,6 +23,38 @@ export async function GET(request: NextRequest) {
 
     const results = await Promise.allSettled(
       activeMonitors.map(async (monitor) => {
+        // Pre-flight SSRF & DNS rebinding validation
+        if (await isPrivateUrl(monitor.url)) {
+          const failCount = monitor.consecutiveFailures + 1;
+          const newStatus = failCount >= 2 ? "down" : monitor.currentStatus;
+
+          await db.insert(checks).values({
+            monitorId: monitor.id,
+            status: "down",
+            statusCode: null,
+            responseTimeMs: 0,
+          });
+
+          await db
+            .update(monitors)
+            .set({
+              consecutiveFailures: failCount,
+              currentStatus: newStatus,
+              lastCheckedAt: new Date(),
+            })
+            .where(eq(monitors.id, monitor.id));
+
+          return {
+            monitorId: monitor.id,
+            name: monitor.name,
+            status: "down" as const,
+            statusCode: null,
+            responseTimeMs: 0,
+            consecutiveFailures: failCount,
+            currentStatus: newStatus,
+          };
+        }
+
         const result = await checkMonitor(monitor);
 
         await db.insert(checks).values({
