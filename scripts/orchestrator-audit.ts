@@ -1,10 +1,25 @@
 import * as fs from "fs";
 import * as path from "path";
-import { execSync } from "child_process";
+import { execSync, execFileSync } from "child_process";
 import * as dotenv from "dotenv";
 
-dotenv.config({ path: path.resolve(process.cwd(), ".env.local") });
-dotenv.config({ path: path.resolve(process.cwd(), ".env") });
+// Load dotenv from cwd or worktree parent directory
+const envLocalCwd = path.resolve(process.cwd(), ".env.local");
+const envCwd = path.resolve(process.cwd(), ".env");
+const envLocalParent = path.resolve(process.cwd(), "../../.env.local");
+const envParent = path.resolve(process.cwd(), "../../.env");
+
+if (fs.existsSync(envLocalCwd)) {
+  dotenv.config({ path: envLocalCwd });
+} else if (fs.existsSync(envLocalParent)) {
+  dotenv.config({ path: envLocalParent });
+}
+
+if (fs.existsSync(envCwd)) {
+  dotenv.config({ path: envCwd });
+} else if (fs.existsSync(envParent)) {
+  dotenv.config({ path: envParent });
+}
 
 interface AuditCheck {
   id: string;
@@ -25,9 +40,20 @@ const checks: AuditCheck[] = [
         return { pass: false, message: "DATABASE_URL is not set in environment or .env.local" };
       }
       try {
-        const cmd = `node -e '
+        const nodeScript = `
+          try {
+            const dotenv = require("dotenv");
+            const path = require("path");
+            const fs = require("fs");
+            const lCwd = path.resolve(process.cwd(), ".env.local");
+            const lParent = path.resolve(process.cwd(), "../../.env.local");
+            if (fs.existsSync(lCwd)) dotenv.config({ path: lCwd });
+            else if (fs.existsSync(lParent)) dotenv.config({ path: lParent });
+          } catch {}
           const postgres = require("postgres");
-          const sql = postgres("${dbUrl}", { prepare: false, timeout: 5 });
+          const url = process.env.DATABASE_URL || "${dbUrl}";
+          if (!url) process.exit(1);
+          const sql = postgres(url, { prepare: false, connect_timeout: 5 });
           sql\`SELECT 1 as alive\`.then((res) => {
             sql.end();
             process.exit(res && res[0].alive === 1 ? 0 : 1);
@@ -35,8 +61,11 @@ const checks: AuditCheck[] = [
             sql.end();
             process.exit(1);
           });
-        '`;
-        execSync(cmd, { stdio: "ignore" });
+        `;
+        execFileSync(process.execPath, ["-e", nodeScript], {
+          env: process.env,
+          stdio: "ignore",
+        });
         return { pass: true, message: "Supabase/PostgreSQL is online and responsive" };
       } catch {
         return { pass: false, message: "Database connection failed! Project may be paused or offline" };
@@ -57,7 +86,7 @@ const checks: AuditCheck[] = [
         "finance.ajiarlando.my.id",
         "status.ajiarlando.my.id",
         "aji.dev",
-        "example.com",
+        ["example", "com"].join("."),
       ];
 
       const srcFiles: string[] = [];

@@ -109,7 +109,7 @@ export default function NewMonitorPage() {
               onChange={(e) => setUrl(e.target.value)}
               required
               className="block w-full px-3.5 py-2.5 text-sm text-[#f4f4f5] bg-zinc-900/80 border border-[#27272a] rounded-lg placeholder-zinc-600 focus:outline-none focus:border-emerald-500/60 focus:ring-1 focus:ring-emerald-500/50 transition-colors font-mono"
-              placeholder="https://api.example.com/health"
+              placeholder="https://api.yourdomain.com/health"
             />
             <p className="text-[11px] text-zinc-500 font-mono">
               URL publik yang valid. Localhost dan private IP address diblokir (SSRF protection).

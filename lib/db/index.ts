@@ -7,17 +7,25 @@ if (!process.env.DATABASE_URL) {
     // Fallback for standalone scripts and test runners where Next.js hasn't preloaded .env
     const dotenv = require("dotenv");
     const path = require("path");
-    dotenv.config({ path: path.resolve(process.cwd(), ".env.local") });
+    const fs = require("fs");
+    const localEnv = path.resolve(process.cwd(), ".env.local");
+    if (fs.existsSync(localEnv)) {
+      dotenv.config({ path: localEnv });
+    } else {
+      const parentEnv = path.resolve(process.cwd(), "../../.env.local");
+      if (fs.existsSync(parentEnv)) {
+        dotenv.config({ path: parentEnv });
+      }
+    }
   } catch {
     // Ignore if dotenv is not available in production runtime
   }
 }
 
-const connectionString =
-  process.env.DATABASE_URL || "postgres://postgres:***@127.0.0.1:5432/statusboard";
+const connectionString = process.env.DATABASE_URL || "";
 
 if (!process.env.DATABASE_URL) {
-  console.warn("[db] DATABASE_URL is not set. Database operations will fail or fallback.");
+  console.warn("[db] DATABASE_URL is not set. Database operations will fail.");
 }
 
 const client = postgres(connectionString, {
