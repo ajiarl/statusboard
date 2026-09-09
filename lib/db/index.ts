@@ -1,13 +1,13 @@
 import { drizzle } from "drizzle-orm/postgres-js";
 import postgres from "postgres";
 import * as schema from "./schema";
+import * as dotenv from "dotenv";
+import * as path from "path";
+import * as fs from "fs";
 
 if (!process.env.DATABASE_URL) {
   try {
     // Fallback for standalone scripts and test runners where Next.js hasn't preloaded .env
-    const dotenv = require("dotenv");
-    const path = require("path");
-    const fs = require("fs");
     const localEnv = path.resolve(process.cwd(), ".env.local");
     if (fs.existsSync(localEnv)) {
       dotenv.config({ path: localEnv });

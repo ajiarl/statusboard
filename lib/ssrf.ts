@@ -21,7 +21,6 @@ const PRIVATE_IPV6_RANGES = [
   /^::$/,
 ];
 
-const IPV6_MAPPED_IPV4 = /^::ffff:(\d{1,3}\.\d{1,3}\.\d{1,3}\.\d{1,3})$/i;
 
 const BLOCKED_HOSTNAMES = [
   "localhost",
